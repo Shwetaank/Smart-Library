@@ -1,0 +1,66 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Backend API for the Online Library Management System built with Express, TypeScript, Prisma, and Azure SQL.",
+  "keywords": [
+    "library-management",
+    "online-library",
+    "express",
+    "nodejs",
+    "typescript",
+    "prisma",
+    "azure-sql",
+    "azure-blob-storage",
+    "rest-api",
+    "jwt",
+    "zod"
+  ],
+  "license": "MIT",
+  "author": "Sin_Greed",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "seed": "tsx --env-file=.env prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "tsx --env-file=.env prisma/seed.ts"
+  },
+  "dependencies": {
+    "@azure/storage-blob": "^12.33.0",
+    "@prisma/adapter-mssql": "^7.9.0",
+    "@prisma/client": "^7.8.0",
+    "applicationinsights": "^3.15.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.2.0",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
+    "uuid": "^14.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^26.1.1",
+    "@types/supertest": "^7.2.1",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.64.0",
+    "@typescript-eslint/parser": "^8.64.0",
+    "eslint": "^10.7.0",
+    "nodemon": "^3.1.14",
+    "prisma": "^7.8.0",
+    "supertest": "^7.2.2",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

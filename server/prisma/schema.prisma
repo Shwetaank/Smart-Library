@@ -1,0 +1,120 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider     = "sqlserver"
+    relationMode = "prisma"
+}
+
+model User {
+    id           String        @id @default(cuid())
+    externalId   String        @unique
+    email        String        @unique
+    passwordHash String?
+    name         String?
+    role         String        @default("USER")
+    isActive     Boolean       @default(true)
+    deletedAt    DateTime?
+    createdAt    DateTime      @default(now())
+    updatedAt    DateTime      @updatedAt
+    loans        Loan[]
+    reservations Reservation[]
+    auditLogs    AuditLog[]
+
+    @@index([email])
+    @@index([role])
+    @@index([deletedAt])
+}
+
+model Genre {
+    id        String    @id @default(cuid())
+    name      String    @unique
+    books     Book[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    @@index([deletedAt])
+}
+
+model Book {
+    id              String        @id @default(cuid())
+    title           String
+    author          String
+    isbn            String        @unique
+    description     String?
+    publishedYear   Int?
+    genreId         String
+    coverUrl        String?
+    quantity        Int           @default(1)
+    availableCopies Int           @default(1)
+    deletedAt       DateTime?
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+    genre           Genre         @relation(fields: [genreId], references: [id], onDelete: Restrict)
+    loans           Loan[]
+    reservations    Reservation[]
+
+    @@index([title])
+    @@index([author])
+    @@index([genreId])
+    @@index([deletedAt])
+}
+
+model Loan {
+    id           String    @id @default(cuid())
+    userId       String
+    bookId       String
+    status       String    @default("ACTIVE")
+    borrowedAt   DateTime  @default(now())
+    dueDate      DateTime
+    returnedAt   DateTime?
+    renewedCount Int       @default(0)
+    fineAmount   Decimal   @default(0)
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
+    deletedAt    DateTime?
+    user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    book         Book      @relation(fields: [bookId], references: [id], onDelete: Restrict)
+
+    @@index([userId])
+    @@index([bookId])
+    @@index([status])
+    @@index([deletedAt])
+}
+
+model Reservation {
+    id          String    @id @default(cuid())
+    userId      String
+    bookId      String
+    status      String    @default("PENDING")
+    placedAt    DateTime  @default(now())
+    expiresAt   DateTime
+    fulfilledAt DateTime?
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+    user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    book        Book      @relation(fields: [bookId], references: [id], onDelete: Restrict)
+
+    @@index([userId])
+    @@index([bookId])
+    @@index([status])
+    @@index([expiresAt])
+    @@index([deletedAt])
+}
+
+model AuditLog {
+    id        String   @id @default(cuid())
+    userId    String?
+    action    String
+    entity    String
+    details   String?
+    createdAt DateTime @default(now())
+    user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+    @@index([userId])
+    @@index([entity])
+    @@index([createdAt])
+}
