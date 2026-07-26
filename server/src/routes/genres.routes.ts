@@ -10,12 +10,12 @@ import {
 
 const router = Router();
 
-router.get(
-  '/',
-  requireAuth,
-  validateRequest(genreQuerySchema),
-  (req, res, next) => req.container.resolve(GenreController).list(req, res, next),
+// Get all genres
+router.get('/', requireAuth, validateRequest(genreQuerySchema), (req, res, next) =>
+  req.container.resolve(GenreController).list(req, res, next),
 );
+
+// Create a new genre
 router.post(
   '/',
   requireAuth,
@@ -23,11 +23,13 @@ router.post(
   validateRequest(createGenreSchema),
   (req, res, next) => req.container.resolve(GenreController).create(req, res, next),
 );
-router.get(
-  '/:id',
-  requireAuth,
-  (req, res, next) => req.container.resolve(GenreController).get(req, res, next),
+
+// Get a genre by ID
+router.get('/:id', requireAuth, (req, res, next) =>
+  req.container.resolve(GenreController).get(req, res, next),
 );
+
+// Update a genre
 router.put(
   '/:id',
   requireAuth,
@@ -35,11 +37,10 @@ router.put(
   validateRequest(updateGenreSchema),
   (req, res, next) => req.container.resolve(GenreController).update(req, res, next),
 );
-router.delete(
-  '/:id',
-  requireAuth,
-  requireRole('LIBRARIAN', 'ADMIN'),
-  (req, res, next) => req.container.resolve(GenreController).remove(req, res, next),
+
+// Delete a genre
+router.delete('/:id', requireAuth, requireRole('LIBRARIAN', 'ADMIN'), (req, res, next) =>
+  req.container.resolve(GenreController).remove(req, res, next),
 );
 
 export default router;

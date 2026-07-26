@@ -8,8 +8,14 @@ import { AppError } from '../utils/appError.js';
 import { uploadFromUrlSchema } from '../validators/upload.validators.js';
 
 const router = Router();
+
+// Apply rate limiting to upload endpoints
 const uploadRateLimit = createRateLimiter({ windowMs: 15 * 60 * 1000, maxRequests: 60 });
+
+// Allow only supported image formats
 const allowedCoverMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+
+// Configure Multer for in-memory file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -23,6 +29,7 @@ const upload = multer({
   },
 });
 
+// Upload a cover image from a file
 router.post(
   '/cover',
   uploadRateLimit,
@@ -31,6 +38,8 @@ router.post(
   upload.single('file'),
   (req, res, next) => req.container.resolve(UploadController).uploadCover(req, res, next),
 );
+
+// Upload a cover image from a URL
 router.post(
   '/cover/from-url',
   uploadRateLimit,
@@ -39,10 +48,10 @@ router.post(
   validateRequest(uploadFromUrlSchema),
   (req, res, next) => req.container.resolve(UploadController).uploadCoverFromUrl(req, res, next),
 );
-router.get(
-  '/sas/:blobName',
-  requireAuth,
-  (req, res, next) => req.container.resolve(UploadController).getSasUrl(req, res, next),
+
+// Generate a SAS URL for a blob
+router.get('/sas/:blobName', requireAuth, (req, res, next) =>
+  req.container.resolve(UploadController).getSasUrl(req, res, next),
 );
 
 export default router;

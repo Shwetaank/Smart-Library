@@ -4,8 +4,7 @@ import type { User } from '@prisma/client';
 import { env } from '../config/env.js';
 import { Roles } from '../constants/roles.js';
 import { AppError } from '../utils/appError.js';
-import { hashPassword } from '../utils/password.js';
-import { verifyPassword } from '../utils/password.js';
+import { hashPassword, verifyPassword } from '../utils/password.js';
 import { UserRepository } from '../repositories/user.repository.js';
 
 export type AuthUser = Omit<User, 'passwordHash'>;
@@ -17,6 +16,7 @@ export interface AppJwtPayload extends jwt.JwtPayload {
   role: string;
 }
 
+// Remove sensitive fields before returning user data
 function sanitizeUser(user: User): AuthUser {
   const { passwordHash: _passwordHash, ...safeUser } = user;
   return safeUser;
@@ -26,6 +26,7 @@ function sanitizeUser(user: User): AuthUser {
 export class AuthService {
   constructor(@inject(UserRepository) private readonly userRepository: UserRepository) {}
 
+  // Generate a JWT for the authenticated user
   signToken(user: AuthUser): string {
     const options: SignOptions = {
       expiresIn: env.jwtExpiresIn as SignOptions['expiresIn'],
@@ -47,6 +48,7 @@ export class AuthService {
     );
   }
 
+  // Verify and decode a JWT
   verifyToken(token: string): AppJwtPayload {
     try {
       return jwt.verify(token, env.jwtSecret, {
@@ -59,8 +61,10 @@ export class AuthService {
     }
   }
 
+  // Authenticate a user with email and password
   async login(email: string, password: string) {
     console.log(`User attempting to log in: ${email}`);
+
     const user = await this.userRepository.findByEmail(email.toLowerCase());
     if (!user || !user.isActive || user.deletedAt) {
       throw new AppError('Invalid email or password', 401);
@@ -78,9 +82,11 @@ export class AuthService {
     };
   }
 
+  // Register a new user
   async register(input: { email: string; password: string; name?: string }) {
     const email = input.email.toLowerCase();
     const existing = await this.userRepository.findByEmail(email);
+
     if (existing) {
       throw new AppError('Email is already registered', 409, {
         email: ['Email is already registered'],
@@ -102,9 +108,11 @@ export class AuthService {
     };
   }
 
+  // Get the authenticated user from a JWT
   async getAuthenticatedUser(token: string) {
     const payload = this.verifyToken(token);
     const user = await this.userRepository.findById(payload.sub);
+
     if (!user.isActive || user.deletedAt) {
       throw new AppError('User account is inactive', 401);
     }

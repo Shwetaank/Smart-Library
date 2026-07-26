@@ -1,9 +1,11 @@
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
 import { initialize } from '../src/container.js';
 
-initialize();
+beforeAll(() => {
+  initialize();
+});
 
 describe('Health endpoint', () => {
   it('returns ok', async () => {

@@ -11,19 +11,34 @@ export class BookRepository {
   }
 
   async findMany(params: Record<string, unknown>) {
-    const { page = 1, limit = 10, search, genreId, sortBy = 'createdAt', sortOrder = 'desc' } = params;
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      genreId,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+    } = params;
     const skip = (Number(page) - 1) * Number(limit);
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (search) {
-      where.OR = [
-        { title: { contains: String(search) } },
-        { author: { contains: String(search) } },
-        { isbn: { contains: String(search) } },
-      ];
+    if (search !== undefined && search !== null) {
+      const searchStr = typeof search === 'string' || typeof search === 'number' ? String(search) : '';
+      if (searchStr) {
+        where.OR = [
+          { title: { contains: searchStr } },
+          { author: { contains: searchStr } },
+          { isbn: { contains: searchStr } },
+        ];
+      }
     }
-    if (genreId) {
-      where.genreId = String(genreId);
+    if (genreId !== undefined && genreId !== null) {
+      const genreIdStr = typeof genreId === 'string' || typeof genreId === 'number'
+        ? String(genreId)
+        : undefined;
+      if (genreIdStr) {
+        where.genreId = genreIdStr;
+      }
     }
 
     const [items, total] = await Promise.all([
@@ -41,7 +56,10 @@ export class BookRepository {
   }
 
   async findById(id: string) {
-    const item = await this.prisma.book.findFirst({ where: { id, deletedAt: null }, include: { genre: true } });
+    const item = await this.prisma.book.findFirst({
+      where: { id, deletedAt: null },
+      include: { genre: true },
+    });
     if (!item) throw new AppError('Book not found', 404);
     return item;
   }

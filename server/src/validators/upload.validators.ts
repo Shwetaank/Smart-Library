@@ -1,7 +1,10 @@
 import { z } from 'zod';
 
+// Validate upload from URL request
 export const uploadFromUrlSchema = z.object({
   body: z.object({
-    url: z.string().url('A valid URL for the cover image must be provided.'),
+    url: z.url({
+      message: 'A valid URL for the cover image must be provided.',
+    }),
   }),
 });

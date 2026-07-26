@@ -8,6 +8,7 @@ import { getAuthenticatedUser } from '../utils/request.js';
 export class LoanController {
   constructor(@inject(LoanService) private readonly loanService: LoanService) {}
 
+  // Borrow a book
   borrow = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
@@ -18,6 +19,7 @@ export class LoanController {
     }
   };
 
+  // Return a borrowed book
   return = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
@@ -28,6 +30,7 @@ export class LoanController {
     }
   };
 
+  // Renew an active loan
   renew = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
@@ -38,6 +41,7 @@ export class LoanController {
     }
   };
 
+  // Get user's loan history
   history = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);

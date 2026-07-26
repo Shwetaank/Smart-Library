@@ -8,6 +8,7 @@ import { getAuthenticatedUser, getRequiredParam } from '../utils/request.js';
 export class GenreController {
   constructor(@inject(GenreService) private readonly genreService: GenreService) {}
 
+  // Get all genres
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const result = await this.genreService.listGenres(req.query as Record<string, unknown>);
@@ -17,16 +18,21 @@ export class GenreController {
     }
   };
 
+  // Create a new genre
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
-      const genre = await this.genreService.createGenre(req.body as Record<string, unknown>, user.id);
+      const genre = await this.genreService.createGenre(
+        req.body as Record<string, unknown>,
+        user.id,
+      );
       res.status(201).json(buildResponse('Genre created', genre));
     } catch (error) {
       next(error);
     }
   };
 
+  // Get a genre by ID
   get = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const genre = await this.genreService.getGenre(getRequiredParam(req, 'id'));
@@ -36,6 +42,7 @@ export class GenreController {
     }
   };
 
+  // Update an existing genre
   update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
@@ -50,6 +57,7 @@ export class GenreController {
     }
   };
 
+  // Delete a genre
   remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);

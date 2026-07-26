@@ -25,16 +25,30 @@ export class UserRepository {
 
     if (search) {
       where.OR = [
-        { email: { contains: String(search) } },
-        { name: { contains: String(search) } },
+        { email: { contains: search as string, mode: 'insensitive' } },
+        { name: { contains: search as string, mode: 'insensitive' } },
       ];
     }
     if (role) {
-      where.role = String(role);
+      let roleString: string | undefined;
+      if (typeof role === 'string') {
+        roleString = role;
+      } else if (Array.isArray(role) && role.length > 0) {
+        roleString = String(role[0]);
+      }
+
+      if (roleString) {
+        where.role = roleString;
+      }
     }
 
     const [items, total] = await Promise.all([
-      this.prisma.user.findMany({ where, skip, take: Number(limit), orderBy: { createdAt: 'desc' } }),
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: Number(limit),
+        orderBy: { createdAt: 'desc' },
+      }),
       this.prisma.user.count({ where }),
     ]);
 
@@ -52,6 +66,9 @@ export class UserRepository {
   }
 
   async softDelete(id: string) {
-    return this.prisma.user.update({ where: { id }, data: { deletedAt: new Date(), isActive: false } });
+    return this.prisma.user.update({
+      where: { id },
+      data: { deletedAt: new Date(), isActive: false },
+    });
   }
 }

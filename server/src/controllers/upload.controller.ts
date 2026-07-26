@@ -9,6 +9,7 @@ import { getRequiredParam } from '../utils/request.js';
 export class UploadController {
   constructor(@inject(UploadService) private readonly uploadService: UploadService) {}
 
+  // Upload a cover image from a file
   uploadCover = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.file) {
@@ -26,6 +27,7 @@ export class UploadController {
     }
   };
 
+  // Upload a cover image from an external URL
   uploadCoverFromUrl = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { url } = req.body;
@@ -44,6 +46,7 @@ export class UploadController {
     }
   };
 
+  // Generate a SAS URL for a blob
   getSasUrl = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const blobName = getRequiredParam(req, 'blobName');

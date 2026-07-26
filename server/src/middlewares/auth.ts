@@ -4,6 +4,7 @@ import { container } from 'tsyringe';
 import { AuthService } from '../services/auth.service.js';
 import { AppError } from '../utils/appError.js';
 
+// Verify the user's authentication token
 export function requireAuth(req: Request, _res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : undefined;
@@ -32,6 +33,7 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
   })();
 }
 
+// Restrict access based on user roles
 export function requireRole(...roles: string[]) {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {

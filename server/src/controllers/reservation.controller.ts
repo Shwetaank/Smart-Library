@@ -8,6 +8,7 @@ import { getAuthenticatedUser, getRequiredParam } from '../utils/request.js';
 export class ReservationController {
   constructor(@inject(ReservationService) private readonly reservationService: ReservationService) {}
 
+  // Create a new reservation
   create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
@@ -18,6 +19,7 @@ export class ReservationController {
     }
   };
 
+  // Cancel an existing reservation
   cancel = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
@@ -29,6 +31,7 @@ export class ReservationController {
     }
   };
 
+  // Fulfill a reservation
   fulfill = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);
@@ -40,6 +43,7 @@ export class ReservationController {
     }
   };
 
+  // Get all reservations for the authenticated user
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = getAuthenticatedUser(req);

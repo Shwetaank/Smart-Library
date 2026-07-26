@@ -14,9 +14,10 @@ export class GenreRepository {
     const { page = 1, limit = 50, search } = params;
     const skip = (Number(page) - 1) * Number(limit);
     const where: Prisma.GenreWhereInput = { deletedAt: null };
+    const searchValue = typeof search === 'string' ? search.trim() : undefined;
 
-    if (search) {
-      where.name = { contains: String(search) };
+    if (searchValue) {
+      where.name = { contains: searchValue };
     }
 
     const [items, total] = await Promise.all([

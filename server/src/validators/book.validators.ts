@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+// Validate book creation request
 export const createBookSchema = z.object({
   body: z.object({
     title: z.string().min(1),
@@ -8,11 +9,12 @@ export const createBookSchema = z.object({
     description: z.string().optional(),
     publishedYear: z.number().int().positive().optional(),
     genreId: z.string().min(1),
-    coverUrl: z.string().url().optional(),
+    coverUrl: z.url().optional(),
     quantity: z.number().int().positive().optional(),
   }),
 });
 
+// Validate book update request
 export const updateBookSchema = z.object({
   body: z.object({
     title: z.string().min(1).optional(),
@@ -21,11 +23,12 @@ export const updateBookSchema = z.object({
     description: z.string().optional(),
     publishedYear: z.number().int().positive().optional(),
     genreId: z.string().min(1).optional(),
-    coverUrl: z.string().nullable().optional(),
+    coverUrl: z.url().nullable().optional(),
     quantity: z.number().int().positive().optional(),
   }),
 });
 
+// Validate book query parameters
 export const bookQuerySchema = z.object({
   query: z.object({
     page: z.coerce.number().int().positive().optional(),

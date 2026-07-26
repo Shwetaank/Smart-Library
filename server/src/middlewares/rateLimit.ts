@@ -11,6 +11,7 @@ interface Bucket {
   resetAt: number;
 }
 
+// Create a simple in-memory rate limiter
 export function createRateLimiter({ windowMs, maxRequests }: RateLimitOptions) {
   const buckets = new Map<string, Bucket>();
 
@@ -21,6 +22,7 @@ export function createRateLimiter({ windowMs, maxRequests }: RateLimitOptions) {
     const key = `${ip ?? 'unknown'}:${req.originalUrl}`;
     const current = buckets.get(key);
 
+    // Create or reset the request bucket
     if (!current || current.resetAt <= now) {
       buckets.set(key, { count: 1, resetAt: now + windowMs });
       next();
@@ -28,6 +30,8 @@ export function createRateLimiter({ windowMs, maxRequests }: RateLimitOptions) {
     }
 
     current.count += 1;
+
+    // Block requests exceeding the limit
     if (current.count > maxRequests) {
       next(new AppError('Too many requests, please try again later', 429));
       return;

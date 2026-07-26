@@ -8,6 +8,7 @@ import { getAuthenticatedUser, getRequiredParam } from '../utils/request.js';
 export class UserController {
   constructor(@inject(UserService) private readonly userService: UserService) {}
 
+  // Get the authenticated user's profile
   profile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authUser = getAuthenticatedUser(req);
@@ -18,6 +19,7 @@ export class UserController {
     }
   };
 
+  // Update the authenticated user's profile
   updateProfile = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authUser = getAuthenticatedUser(req);
@@ -31,6 +33,7 @@ export class UserController {
     }
   };
 
+  // Get a list of users
   list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const users = await this.userService.listUsers(req.query as Record<string, unknown>);
@@ -40,6 +43,7 @@ export class UserController {
     }
   };
 
+  // Update a user's role
   updateRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authUser = getAuthenticatedUser(req);
@@ -51,6 +55,7 @@ export class UserController {
     }
   };
 
+  // Delete a user
   remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authUser = getAuthenticatedUser(req);

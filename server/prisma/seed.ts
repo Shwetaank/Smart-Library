@@ -1,9 +1,9 @@
-
 import { PrismaClient } from '@prisma/client';
 import { PrismaMssql } from '@prisma/adapter-mssql';
 import { env } from '../src/config/env.js';
 import { hashPassword } from '../src/utils/password.js';
 
+// Initialize Prisma client with SQL Server adapter
 const prisma = new PrismaClient({
   adapter: new PrismaMssql(env.databaseUrl),
 });
@@ -11,13 +11,17 @@ const prisma = new PrismaClient({
 async function main() {
   console.log('Start seeding...');
 
+  // Default password for all seeded users
   const defaultPassword = await hashPassword('Password@123');
+
+  // Seed application users
   const users = [
     { email: 'admin@smartlibrary.local', name: 'Admin User', role: 'ADMIN' },
     { email: 'librarian@smartlibrary.local', name: 'Library Manager', role: 'LIBRARIAN' },
     { email: 'user@smartlibrary.local', name: 'Library Member', role: 'USER' },
   ];
 
+  // Create or update users
   for (const user of users) {
     await prisma.user.upsert({
       where: { email: user.email },
@@ -38,6 +42,7 @@ async function main() {
     });
   }
 
+  // Seed book genres
   const genres = await Promise.all(
     [
       'Science Fiction',
@@ -57,8 +62,10 @@ async function main() {
     ),
   );
 
+  // Create a lookup object for genre IDs
   const genreByName = Object.fromEntries(genres.map((genre) => [genre.name, genre]));
 
+  // Seed library books
   const books = [
     {
       title: 'Dune',
@@ -154,7 +161,8 @@ async function main() {
       title: 'A Game of Thrones',
       author: 'George R. R. Martin',
       isbn: '9780553103540',
-      description: 'The first novel in A Song of Ice and Fire, a series of fantasy novels by American author George R. R. Martin.',
+      description:
+        'The first novel in A Song of Ice and Fire, a series of fantasy novels by American author George R. R. Martin.',
       publishedYear: 1996,
       genreId: genreByName.Fantasy.id,
       quantity: 18,
@@ -164,7 +172,8 @@ async function main() {
       title: 'The Name of the Wind',
       author: 'Patrick Rothfuss',
       isbn: '9780756404741',
-      description: 'A fantasy novel by American writer Patrick Rothfuss, the first book in The Kingkiller Chronicle.',
+      description:
+        'A fantasy novel by American writer Patrick Rothfuss, the first book in The Kingkiller Chronicle.',
       publishedYear: 2007,
       genreId: genreByName.Fantasy.id,
       quantity: 14,
@@ -182,10 +191,14 @@ async function main() {
     },
   ];
 
+  // Create or update books
   for (const book of books) {
     await prisma.book.upsert({
       where: { isbn: book.isbn },
-      update: { ...book, deletedAt: null },
+      update: {
+        ...book,
+        deletedAt: null,
+      },
       create: book,
     });
   }
@@ -193,11 +206,13 @@ async function main() {
   console.log('Seeding finished.');
 }
 
+// Execute seed script
 try {
   await main();
-} catch (e) {
-  console.error(e);
+} catch (error) {
+  console.error(error);
   process.exit(1);
 } finally {
+  // Close database connection
   await prisma.$disconnect();
 }

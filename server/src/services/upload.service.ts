@@ -25,14 +25,12 @@ export class UploadService {
   async uploadCoverFromUrl(url: string): Promise<string> {
     appInsights.defaultClient.trackTrace({
       message: `Starting upload from URL: ${url}`,
-      severity: appInsights.Contracts.SeverityLevel.Information,
     });
 
     let response: Response;
     try {
       appInsights.defaultClient.trackTrace({
         message: 'Fetching image from URL...',
-        severity: appInsights.Contracts.SeverityLevel.Information,
       });
       response = await fetch(url, {
         headers: {
@@ -43,7 +41,6 @@ export class UploadService {
       appInsights.defaultClient.trackTrace({
         message: `Fetch response status: ${response.status}`,
         properties: { headers: Object.fromEntries(response.headers.entries()) },
-        severity: appInsights.Contracts.SeverityLevel.Information,
       });
     } catch (error) {
       appInsights.defaultClient.trackException({
@@ -56,7 +53,6 @@ export class UploadService {
     if (!response.ok) {
       appInsights.defaultClient.trackTrace({
         message: `Failed to download image. Status: ${response.status}`,
-        severity: appInsights.Contracts.SeverityLevel.Error,
       });
       throw new AppError(
         `Failed to download image from the provided URL. Status: ${response.status}`,
@@ -68,7 +64,6 @@ export class UploadService {
     const buffer = Buffer.from(arrayBuffer);
     appInsights.defaultClient.trackTrace({
       message: `Image downloaded into buffer. Size: ${buffer.length} bytes.`,
-      severity: appInsights.Contracts.SeverityLevel.Information,
     });
 
     const contentType = response.headers.get('content-type') ?? 'image/jpeg';
@@ -77,12 +72,10 @@ export class UploadService {
 
     appInsights.defaultClient.trackTrace({
       message: `Uploading to blob storage with name: ${blobName}`,
-      severity: appInsights.Contracts.SeverityLevel.Information,
     });
     const result = await this.uploadToBlob(blobName, contentType, buffer);
     appInsights.defaultClient.trackTrace({
       message: 'Upload to blob storage complete.',
-      severity: appInsights.Contracts.SeverityLevel.Information,
     });
     return result;
   }
@@ -130,7 +123,6 @@ export class UploadService {
 
       appInsights.defaultClient.trackTrace({
         message: 'Azure Blob Storage upload failed. Falling back to local storage.',
-        severity: appInsights.Contracts.SeverityLevel.Warning,
         properties: { error },
       });
 
