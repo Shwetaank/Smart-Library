@@ -3,6 +3,7 @@ import { BlobSASPermissions, BlobServiceClient } from '@azure/storage-blob';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { v4 as uuidv4 } from 'uuid';
+import * as appInsights from 'applicationinsights';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/appError.js';
 
@@ -22,26 +23,41 @@ export class UploadService {
   }
 
   async uploadCoverFromUrl(url: string): Promise<string> {
-    // TODO: Replace with a proper logger
-    console.log(`[INFO] Starting upload from URL: ${url}`);
+    appInsights.defaultClient.trackTrace({
+      message: `Starting upload from URL: ${url}`,
+      severity: appInsights.Contracts.SeverityLevel.Information,
+    });
+
     let response: Response;
     try {
-      console.log('[INFO] Fetching image from URL...');
+      appInsights.defaultClient.trackTrace({
+        message: 'Fetching image from URL...',
+        severity: appInsights.Contracts.SeverityLevel.Information,
+      });
       response = await fetch(url, {
         headers: {
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
         },
       });
-      console.log(`[INFO] Fetch response status: ${response.status}`);
-      console.log(`[INFO] Fetch response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+      appInsights.defaultClient.trackTrace({
+        message: `Fetch response status: ${response.status}`,
+        properties: { headers: Object.fromEntries(response.headers.entries()) },
+        severity: appInsights.Contracts.SeverityLevel.Information,
+      });
     } catch (error) {
-      console.error(`[ERROR] Failed to fetch URL: ${error instanceof Error ? error.message : String(error)}`);
+      appInsights.defaultClient.trackException({
+        exception: error instanceof Error ? error : new Error(String(error)),
+        properties: { location: 'uploadCoverFromUrl.fetch' },
+      });
       throw new AppError('Invalid URL provided.', 400);
     }
 
     if (!response.ok) {
-      console.error(`[ERROR] Failed to download image. Status: ${response.status}`);
+      appInsights.defaultClient.trackTrace({
+        message: `Failed to download image. Status: ${response.status}`,
+        severity: appInsights.Contracts.SeverityLevel.Error,
+      });
       throw new AppError(
         `Failed to download image from the provided URL. Status: ${response.status}`,
         400,
@@ -50,15 +66,24 @@ export class UploadService {
 
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    console.log(`[INFO] Image downloaded into buffer. Size: ${buffer.length} bytes.`);
+    appInsights.defaultClient.trackTrace({
+      message: `Image downloaded into buffer. Size: ${buffer.length} bytes.`,
+      severity: appInsights.Contracts.SeverityLevel.Information,
+    });
 
     const contentType = response.headers.get('content-type') ?? 'image/jpeg';
     const extension = this.getExtensionFromContentType(contentType);
     const blobName = `${uuidv4()}.${extension}`;
 
-    console.log(`[INFO] Uploading to blob storage with name: ${blobName}`);
+    appInsights.defaultClient.trackTrace({
+      message: `Uploading to blob storage with name: ${blobName}`,
+      severity: appInsights.Contracts.SeverityLevel.Information,
+    });
     const result = await this.uploadToBlob(blobName, contentType, buffer);
-    console.log('[INFO] Upload to blob storage complete.');
+    appInsights.defaultClient.trackTrace({
+      message: 'Upload to blob storage complete.',
+      severity: appInsights.Contracts.SeverityLevel.Information,
+    });
     return result;
   }
 
@@ -103,11 +128,11 @@ export class UploadService {
         throw error;
       }
 
-      // TODO: Replace with a proper logger
-      console.warn(
-        `[WARN] Azure Blob Storage upload failed. Falling back to local storage. Error:`,
-        error,
-      );
+      appInsights.defaultClient.trackTrace({
+        message: 'Azure Blob Storage upload failed. Falling back to local storage.',
+        severity: appInsights.Contracts.SeverityLevel.Warning,
+        properties: { error },
+      });
 
       const uploadDir = path.join(process.cwd(), 'uploads', 'covers');
       await mkdir(uploadDir, { recursive: true });

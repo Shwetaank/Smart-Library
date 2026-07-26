@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "./components/ui/button";
+import Footer from "./components/layout/Footer";
+import Header from "./components/layout/Header";
 
 type Role = "USER" | "LIBRARIAN" | "ADMIN";
 type Tab = "catalog" | "loans" | "reservations" | "genres" | "users";
@@ -640,6 +642,7 @@ function App() {
                 onClick={() => {
                   setTab(key as Tab);
                   if (key !== "catalog") setSelectedBook(null);
+                  setIsMobileMenuOpen(false);
                 }}
                 type="button"
               >
@@ -663,26 +666,17 @@ function App() {
       </aside>
 
       <section className="workspace">
-        <header className="topbar">
-          <div className="topbar-left">
-            <Button
-              className="mobile-menu-toggle"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              variant="outline"
-              size="icon"
-            >
-              <Menu size={20} />
-            </Button>
-            <div>
-              <h1>{selectedBook ? "Book Details" : tab === "catalog" ? "Library Catalog" : tab[0].toUpperCase() + tab.slice(1)}</h1>
-              <p>{selectedBook ? selectedBook.id : `${books.total} books indexed across ${genres.length} genres.`}</p>
-            </div>
-          </div>
-          <Button onClick={loadCore} variant="outline" disabled={loading}>
-            <RefreshCw className={loading ? "spin-icon" : ""} size={16} />
-            Refresh
-          </Button>
-        </header>
+        <div
+          className={`main-overlay ${isMobileMenuOpen ? "is-visible" : ""}`.trim()}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+        <Header
+          onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          title={selectedBook ? "Book Details" : tab === "catalog" ? "Library Catalog" : tab[0].toUpperCase() + tab.slice(1)}
+          subtitle={selectedBook ? selectedBook.id : `${books.total} books indexed across ${genres.length} genres.`}
+          loading={loading}
+          onRefresh={loadCore}
+        />
 
         {!selectedBook && (
           <section className="stats-grid">
@@ -1017,6 +1011,7 @@ function App() {
             Save profile
           </Button>
         </section>
+        <Footer />
       </section>
     </main>
   );
