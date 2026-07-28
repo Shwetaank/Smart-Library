@@ -1,33 +1,56 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ToastMessage } from "@/types";
 
 export function useToast() {
+  // Toast state
   const [toast, setToast] = useState<ToastMessage | null>(null);
 
+  // Show toast
   const showToast = useCallback(
     (title: string, variant: ToastMessage["variant"] = "success") => {
-      setToast({ id: Date.now(), title, variant });
+      setToast({
+        id: Date.now(),
+        title,
+        variant,
+      });
     },
-    [],
+    []
   );
 
+  // Show error toast
   const showError = useCallback(
     (value: unknown) => {
       showToast(
         value instanceof Error ? value.message : "Something went wrong",
-        "destructive",
+        "destructive"
       );
     },
-    [showToast],
+    [showToast]
   );
 
-  const dismissToast = useCallback(() => setToast(null), []);
+  // Dismiss toast
+  const dismissToast = useCallback(() => {
+    setToast(null);
+  }, []);
 
+  // Auto-dismiss toast
   useEffect(() => {
     if (!toast) return;
-    const timeoutId = window.setTimeout(() => setToast(null), 3600);
+
+    const timeoutId = window.setTimeout(() => {
+      setToast(null);
+    }, 3600);
+
     return () => window.clearTimeout(timeoutId);
   }, [toast]);
 
-  return { toast, showToast, showError, dismissToast };
+  return useMemo(
+    () => ({
+      toast,
+      showToast,
+      showError,
+      dismissToast,
+    }),
+    [toast, showToast, showError, dismissToast]
+  );
 }

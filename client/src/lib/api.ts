@@ -1,14 +1,17 @@
 import { API_BASE, type ApiResponse, type Book, type BookForm } from "@/types";
 
+// Send API request
 export async function apiRequest<T>(
   path: string,
   token?: string,
   options: RequestInit = {},
 ): Promise<T> {
   const headers = new Headers(options.headers);
+
   if (!(options.body instanceof FormData)) {
     headers.set("Content-Type", "application/json");
   }
+
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
@@ -21,6 +24,7 @@ export async function apiRequest<T>(
   const payload = (await response
     .json()
     .catch(() => null)) as ApiResponse<T> | null;
+
   if (!response.ok || !payload?.success) {
     throw new Error(
       payload?.message ?? `Request failed with ${response.status}`,
@@ -30,6 +34,7 @@ export async function apiRequest<T>(
   return payload.data;
 }
 
+// Convert form to API payload
 export function toBookPayload(form: BookForm) {
   return {
     title: form.title.trim(),
@@ -43,6 +48,7 @@ export function toBookPayload(form: BookForm) {
   };
 }
 
+// Convert API response to form
 export function toBookForm(book: Book): BookForm {
   return {
     id: book.id,
@@ -57,9 +63,11 @@ export function toBookForm(book: Book): BookForm {
   };
 }
 
+// Format date
 export function formatDate(value?: string | null) {
   if (!value) return "-";
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
-    new Date(value),
-  );
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+  }).format(new Date(value));
 }

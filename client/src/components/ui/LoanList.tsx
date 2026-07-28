@@ -4,23 +4,31 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate } from "@/lib/api";
 import type { Loan } from "@/types";
 
-type LoanListProps = {
+type LoanListProps = Readonly<{
     loans: Loan[];
     onReturn: (loanId: string) => void;
     onRenew: (loanId: string) => void;
-};
+}>;
 
-export function LoanList({ loans, onReturn, onRenew }: LoanListProps) {
+export function LoanList({
+    loans,
+    onReturn,
+    onRenew,
+}: LoanListProps) {
     return (
+        // Loan list
         <section className="table-panel">
             {loans.map((loan) => (
                 <article className="list-row" key={loan.id}>
                     <div>
                         <strong>{loan.book?.title ?? loan.bookId}</strong>
+
                         <span>
                             {loan.status} due {formatDate(loan.dueDate)}
                         </span>
                     </div>
+
+                    {/* Loan actions */}
                     {loan.status === "ACTIVE" && (
                         <div className="row-actions">
                             <Button
@@ -31,7 +39,11 @@ export function LoanList({ loans, onReturn, onRenew }: LoanListProps) {
                                 <RotateCcw size={14} />
                                 Renew
                             </Button>
-                            <Button onClick={() => onReturn(loan.id)} size="sm">
+
+                            <Button
+                                onClick={() => onReturn(loan.id)}
+                                size="sm"
+                            >
                                 <Check size={14} />
                                 Return
                             </Button>
@@ -39,6 +51,7 @@ export function LoanList({ loans, onReturn, onRenew }: LoanListProps) {
                     )}
                 </article>
             ))}
+
             {!loans.length && (
                 <EmptyState
                     icon={CalendarClock}
@@ -49,4 +62,3 @@ export function LoanList({ loans, onReturn, onRenew }: LoanListProps) {
         </section>
     );
 }
-

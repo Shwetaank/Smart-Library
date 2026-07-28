@@ -4,12 +4,12 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate } from "@/lib/api";
 import type { Reservation } from "@/types";
 
-type ReservationListProps = {
+type ReservationListProps = Readonly<{
     reservations: Reservation[];
     canManageLibrary: boolean;
     onFulfill: (id: string) => void;
     onCancel: (id: string) => void;
-};
+}>;
 
 export function ReservationList({
     reservations,
@@ -18,16 +18,20 @@ export function ReservationList({
     onCancel,
 }: ReservationListProps) {
     return (
+        // Reservation list
         <section className="table-panel">
             {reservations.map((reservation) => (
                 <article className="list-row" key={reservation.id}>
                     <div>
                         <strong>{reservation.bookId}</strong>
+
                         <span>
                             {reservation.status} expires{" "}
                             {formatDate(reservation.expiresAt)}
                         </span>
                     </div>
+
+                    {/* Reservation actions */}
                     <div className="row-actions">
                         {canManageLibrary && reservation.status === "PENDING" && (
                             <Button
@@ -38,6 +42,7 @@ export function ReservationList({
                                 Fulfill
                             </Button>
                         )}
+
                         <Button
                             onClick={() => onCancel(reservation.id)}
                             size="sm"
@@ -49,6 +54,7 @@ export function ReservationList({
                     </div>
                 </article>
             ))}
+
             {!reservations.length && (
                 <EmptyState
                     icon={RefreshCw}
@@ -59,4 +65,3 @@ export function ReservationList({
         </section>
     );
 }
-

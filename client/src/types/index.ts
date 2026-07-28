@@ -1,9 +1,13 @@
+import type { ComponentType } from "react";
+
+// Common types
 export type Role = "USER" | "LIBRARIAN" | "ADMIN";
 
 export type Tab = "catalog" | "loans" | "reservations" | "genres" | "users";
 
-export type NavItem = [Tab, React.ComponentType<{ size?: number }>, string];
+export type NavItem = [Tab, ComponentType<{ size?: number }>, string];
 
+// API types
 export type ApiResponse<T> = {
   success: boolean;
   message: string;
@@ -18,6 +22,7 @@ export type PageResult<T> = {
   limit: number;
 };
 
+// Domain models
 export type Genre = {
   id: string;
   name: string;
@@ -66,11 +71,13 @@ export type User = {
   isActive: boolean;
 };
 
+// Authentication
 export type LoginResult = {
   token: string;
   user: User;
 };
 
+// UI types
 export type ToastMessage = {
   id: number;
   title: string;
@@ -89,6 +96,7 @@ export type BookForm = {
   quantity: string;
 };
 
+// Default values
 export const emptyBookForm: BookForm = {
   title: "",
   author: "",
@@ -100,5 +108,6 @@ export const emptyBookForm: BookForm = {
   quantity: "1",
 };
 
+// API configuration
 export const API_BASE =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000/api/v1";

@@ -4,27 +4,35 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { Genre } from "@/types";
 
-type GenreManagerProps = {
+type GenreManagerProps = Readonly<{
     genres: Genre[];
     onSave: (name: string) => void;
     onDelete: (id: string) => void;
-};
+}>;
 
-export function GenreManager({ genres, onSave, onDelete }: GenreManagerProps) {
+export function GenreManager({
+    genres,
+    onSave,
+    onDelete,
+}: GenreManagerProps) {
     const [genreName, setGenreName] = useState("");
 
     const handleSave = () => {
         if (!genreName.trim()) return;
+
         onSave(genreName);
         setGenreName("");
     };
 
     return (
+        // Genre management
         <section className="content-grid">
+            {/* Genre list */}
             <div className="table-panel">
                 {genres.map((genre) => (
                     <article className="list-row" key={genre.id}>
                         <strong>{genre.name}</strong>
+
                         <Button
                             onClick={() => onDelete(genre.id)}
                             size="sm"
@@ -34,6 +42,7 @@ export function GenreManager({ genres, onSave, onDelete }: GenreManagerProps) {
                         </Button>
                     </article>
                 ))}
+
                 {!genres.length && (
                     <EmptyState
                         icon={Library}
@@ -42,14 +51,18 @@ export function GenreManager({ genres, onSave, onDelete }: GenreManagerProps) {
                     />
                 )}
             </div>
+
+            {/* Add genre */}
             <aside className="side-panel">
                 <h2>Add genre</h2>
+
                 <input
                     value={genreName}
                     onChange={(e) => setGenreName(e.target.value)}
                     placeholder="Genre name"
                     onKeyDown={(e) => e.key === "Enter" && handleSave()}
                 />
+
                 <Button onClick={handleSave}>
                     <Plus size={16} />
                     Add genre
@@ -58,4 +71,3 @@ export function GenreManager({ genres, onSave, onDelete }: GenreManagerProps) {
         </section>
     );
 }
-

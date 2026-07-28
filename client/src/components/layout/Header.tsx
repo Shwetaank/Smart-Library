@@ -10,41 +10,62 @@ interface HeaderProps {
   onRefresh?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({
+const Header = ({
   onMenuClick,
   title,
   subtitle,
-  loading,
+  loading = false,
   onRefresh,
-}) => {
+}: HeaderProps) => {
   return (
+    // Application header
     <header className="topbar">
       <div className="topbar-left">
+        {/* Mobile menu button */}
         {onMenuClick && (
           <Button
-            className="mobile-menu-toggle"
-            onClick={onMenuClick}
+            type="button"
             variant="outline"
             size="icon"
+            className="mobile-menu-toggle"
+            onClick={onMenuClick}
+            aria-label="Open navigation menu"
           >
             <Menu size={20} />
           </Button>
         )}
-        <BookOpen size={22} style={{ color: "var(--primary)" }} />
-        <div>
-          <h1>{title}</h1>
-          {subtitle && <p>{subtitle}</p>}
+
+        {/* Application logo */}
+        <BookOpen size={22} className="text-primary" />
+
+        {/* Page title */}
+        <div className="flex flex-col">
+          <h1 className="truncate text-xl font-semibold">{title}</h1>
+          {subtitle && (
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
+          )}
         </div>
       </div>
+
+      {/* Refresh button */}
       {onRefresh && (
-        <Button onClick={onRefresh} variant="outline" disabled={loading}>
-          <RefreshCw className={loading ? "spin-icon" : ""} size={16} />
-          <span>Refresh</span>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onRefresh}
+          disabled={loading}
+          aria-label="Refresh page"
+          title="Refresh data"
+        >
+          <RefreshCw
+            size={16}
+            className={loading ? "animate-spin" : ""}
+          />
+          <span>{loading ? "Refreshing..." : "Refresh"}</span>
         </Button>
       )}
     </header>
   );
 };
 
-export default Header;
-
+export default React.memo(Header);

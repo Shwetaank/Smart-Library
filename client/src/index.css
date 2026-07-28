@@ -132,7 +132,10 @@ textarea {
   color: var(--foreground);
   padding: 10px 12px;
   box-shadow: 0 1px 0 oklch(1 0 0 / 70%) inset;
-  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
 }
 
 input::placeholder,
@@ -226,7 +229,11 @@ textarea {
   padding: 24px;
   overflow: hidden;
   background:
-    linear-gradient(120deg, oklch(0.15 0.04 250 / 42%), oklch(0.72 0.1 176 / 30%)),
+    linear-gradient(
+      120deg,
+      oklch(0.15 0.04 250 / 42%),
+      oklch(0.72 0.1 176 / 30%)
+    ),
     url("/src/assets/hero.png") center / cover no-repeat;
 }
 
@@ -308,7 +315,10 @@ textarea {
   border-radius: 6px;
   background: transparent;
   color: var(--muted-foreground);
-  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .auth-tabs button.active {
@@ -352,7 +362,6 @@ textarea {
   border-color: var(--ring);
   color: var(--accent-foreground);
 }
-
 
 .main-overlay {
   display: none;
@@ -430,7 +439,10 @@ textarea {
   background: transparent;
   color: oklch(0.88 0.016 245);
   padding: 10px 12px;
-  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
 }
 
 .sidebar nav button.active,
@@ -571,7 +583,9 @@ textarea {
   border-radius: 6px;
   background: transparent;
   color: var(--muted-foreground);
-  transition: background-color 160ms ease, color 160ms ease;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
 }
 
 .toast-close:hover {
@@ -607,7 +621,10 @@ textarea {
   padding: 15px;
   overflow: hidden;
   animation: fade-up 220ms ease both;
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .stat-card::after {
@@ -696,7 +713,10 @@ textarea {
   gap: 14px;
   padding: 14px;
   animation: fade-up 220ms ease both;
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .book-cover,
@@ -776,7 +796,10 @@ textarea {
   background: oklch(0.96 0.018 180);
   color: var(--accent-foreground);
   padding: 10px 12px;
-  transition: border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
 }
 
 .file-control:hover {
@@ -925,7 +948,10 @@ textarea {
   border-radius: 8px;
   background: oklch(1 0 0 / 72%);
   padding: 12px;
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .empty-state {

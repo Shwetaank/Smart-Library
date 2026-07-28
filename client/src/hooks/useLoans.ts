@@ -1,16 +1,21 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import type { Loan } from "@/types";
 
 export function useLoans(token: string) {
+  // Loan state
   const [loans, setLoans] = useState<Loan[]>([]);
 
+  // Load loans
   const loadLoans = useCallback(async () => {
     const rows = await apiRequest<Loan[]>("/loans/history", token);
+
     setLoans(rows);
+
     return rows;
   }, [token]);
 
+  // Borrow book
   const borrowBook = useCallback(
     async (bookId: string) => {
       await apiRequest<Loan>("/loans/borrow", token, {
@@ -18,9 +23,10 @@ export function useLoans(token: string) {
         body: JSON.stringify({ bookId }),
       });
     },
-    [token],
+    [token]
   );
 
+  // Return loan
   const returnLoan = useCallback(
     async (loanId: string) => {
       await apiRequest<Loan>("/loans/return", token, {
@@ -28,9 +34,10 @@ export function useLoans(token: string) {
         body: JSON.stringify({ loanId }),
       });
     },
-    [token],
+    [token]
   );
 
+  // Renew loan
   const renewLoan = useCallback(
     async (loanId: string) => {
       await apiRequest<Loan>("/loans/renew", token, {
@@ -38,8 +45,18 @@ export function useLoans(token: string) {
         body: JSON.stringify({ loanId }),
       });
     },
-    [token],
+    [token]
   );
 
-  return { loans, setLoans, loadLoans, borrowBook, returnLoan, renewLoan };
+  return useMemo(
+    () => ({
+      loans,
+      setLoans,
+      loadLoans,
+      borrowBook,
+      returnLoan,
+      renewLoan,
+    }),
+    [loadLoans, borrowBook, returnLoan, renewLoan]
+  );
 }

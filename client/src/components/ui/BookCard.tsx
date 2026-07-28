@@ -1,3 +1,4 @@
+import React from "react";
 import {
     BookOpen,
     CalendarClock,
@@ -18,7 +19,7 @@ type BookCardProps = {
     canManageLibrary: boolean;
 };
 
-export function BookCard({
+const BookCard = ({
     book,
     onOpen,
     onBorrow,
@@ -26,58 +27,95 @@ export function BookCard({
     onEdit,
     onDelete,
     canManageLibrary,
-}: BookCardProps) {
+}: BookCardProps) => {
     return (
         <article className="book-card">
+            {/* Book cover */}
             <div className="book-cover">
                 {book.coverUrl ? (
-                    <img alt={`${book.title} cover`} src={book.coverUrl} />
+                    <img
+                        src={book.coverUrl}
+                        alt={`${book.title} cover`}
+                        loading="lazy"
+                        decoding="async"
+                    />
                 ) : (
-                    book.title.slice(0, 1)
+                    <span>{book.title.charAt(0).toUpperCase()}</span>
                 )}
             </div>
+
+            {/* Book details */}
             <div className="book-body">
                 <span>{book.genre?.name ?? "Uncategorized"}</span>
-                <h2>{book.title}</h2>
-                <p>{book.author}</p>
+
+                <h2 className="truncate" title={book.title}>
+                    {book.title}
+                </h2>
+
+                <p className="truncate" title={book.author}>
+                    {book.author}
+                </p>
+
                 <small>
                     {book.availableCopies}/{book.quantity} available
                 </small>
             </div>
+
+            {/* Actions */}
             <div className="row-actions">
-                <Button onClick={() => onOpen(book.id)} size="sm" variant="secondary">
-                    <Hash size={14} />
-                    Details
-                </Button>
                 <Button
-                    onClick={() => onBorrow(book.id)}
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => onOpen(book.id)}
+                    aria-label={`View details of ${book.title}`}
+                >
+                    <Hash size={14} />
+                    <span>Details</span>
+                </Button>
+
+                <Button
+                    type="button"
                     size="sm"
                     disabled={book.availableCopies <= 0}
+                    onClick={() => onBorrow(book.id)}
+                    aria-label={`Borrow ${book.title}`}
                 >
                     <BookOpen size={14} />
-                    Borrow
+                    <span>Borrow</span>
                 </Button>
+
                 <Button
-                    onClick={() => onReserve(book.id)}
+                    type="button"
                     size="sm"
                     variant="outline"
+                    onClick={() => onReserve(book.id)}
+                    aria-label={`Reserve ${book.title}`}
                 >
                     <CalendarClock size={14} />
-                    Hold
+                    <span>Hold</span>
                 </Button>
+
                 {canManageLibrary && (
                     <>
                         <Button
-                            onClick={() => onEdit(book)}
+                            type="button"
                             size="sm"
                             variant="secondary"
+                            onClick={() => onEdit(book)}
+                            title="Edit book"
+                            aria-label={`Edit ${book.title}`}
                         >
                             <Upload size={14} />
                         </Button>
+
                         <Button
-                            onClick={() => onDelete(book.id)}
+                            type="button"
                             size="sm"
                             variant="destructive"
+                            onClick={() => onDelete(book.id)}
+                            title="Delete book"
+                            aria-label={`Delete ${book.title}`}
                         >
                             <Trash2 size={14} />
                         </Button>
@@ -86,5 +124,6 @@ export function BookCard({
             </div>
         </article>
     );
-}
+};
 
+export default React.memo(BookCard);

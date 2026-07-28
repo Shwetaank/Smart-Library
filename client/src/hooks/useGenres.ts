@@ -1,19 +1,24 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import type { Genre, PageResult } from "@/types";
 
 export function useGenres(token: string) {
+  // Genre state
   const [genres, setGenres] = useState<Genre[]>([]);
 
+  // Load genres
   const loadGenres = useCallback(async () => {
     const page = await apiRequest<PageResult<Genre>>(
       "/genres?limit=100",
-      token,
+      token
     );
+
     setGenres(page.items);
+
     return page.items;
   }, [token]);
 
+  // Create genre
   const saveGenre = useCallback(
     async (name: string) => {
       await apiRequest<Genre>("/genres", token, {
@@ -21,15 +26,27 @@ export function useGenres(token: string) {
         body: JSON.stringify({ name }),
       });
     },
-    [token],
+    [token]
   );
 
+  // Delete genre
   const deleteGenre = useCallback(
     async (id: string) => {
-      await apiRequest<null>(`/genres/${id}`, token, { method: "DELETE" });
+      await apiRequest<null>(`/genres/${id}`, token, {
+        method: "DELETE",
+      });
     },
-    [token],
+    [token]
   );
 
-  return { genres, setGenres, loadGenres, saveGenre, deleteGenre };
+  return useMemo(
+    () => ({
+      genres,
+      setGenres,
+      loadGenres,
+      saveGenre,
+      deleteGenre,
+    }),
+    [loadGenres, saveGenre, deleteGenre]
+  );
 }

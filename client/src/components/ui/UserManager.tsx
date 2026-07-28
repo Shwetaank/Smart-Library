@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { PageResult, Role, User } from "@/types";
 
-type UserManagerProps = {
+type UserManagerProps = Readonly<{
     users: PageResult<User>;
     onUpdateRole: (id: string, role: Role) => void;
     onDelete: (id: string) => void;
-};
+}>;
 
 export function UserManager({
     users,
@@ -15,13 +15,17 @@ export function UserManager({
     onDelete,
 }: UserManagerProps) {
     return (
+        // User management
         <section className="table-panel">
             {users.items.map((user) => (
                 <article className="list-row" key={user.id}>
                     <div>
                         <strong>{user.name || user.email}</strong>
+
                         <span>{user.email}</span>
                     </div>
+
+                    {/* User actions */}
                     <div className="row-actions">
                         <select
                             value={user.role}
@@ -33,6 +37,7 @@ export function UserManager({
                             <option value="LIBRARIAN">LIBRARIAN</option>
                             <option value="ADMIN">ADMIN</option>
                         </select>
+
                         <Button
                             onClick={() => onDelete(user.id)}
                             size="sm"
@@ -43,6 +48,7 @@ export function UserManager({
                     </div>
                 </article>
             ))}
+
             {!users.items.length && (
                 <EmptyState
                     icon={Users}
@@ -53,4 +59,3 @@ export function UserManager({
         </section>
     );
 }
-

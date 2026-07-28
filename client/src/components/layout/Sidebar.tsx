@@ -22,7 +22,15 @@ interface SidebarProps {
   canManageLibrary: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
+const navItems = [
+  ["catalog", BookOpen, "Catalog"],
+  ["loans", CalendarClock, "Loans"],
+  ["reservations", RefreshCw, "Reservations"],
+  ["genres", Library, "Genres"],
+  ["users", Users, "Users"],
+] as const;
+
+const Sidebar = ({
   isOpen,
   onClose,
   profile,
@@ -31,68 +39,90 @@ const Sidebar: React.FC<SidebarProps> = ({
   onTabChange,
   canManageUsers,
   canManageLibrary,
-}) => {
-  const navItems = [
-    ["catalog", BookOpen, "Catalog"],
-    ["loans", CalendarClock, "Loans"],
-    ["reservations", RefreshCw, "Reservations"],
-    ["genres", Library, "Genres"],
-    ["users", Users, "Users"],
-  ] as const;
-
+}: SidebarProps) => {
   return (
     <>
+      {/* Sidebar */}
       <aside
         className={`sidebar ${isOpen ? "is-open" : ""}`}
+        aria-hidden={!isOpen}
       >
+        {/* Brand */}
         <div className="sidebar-brand">
           <Library size={28} />
+
           <div>
             <strong>SmartLibrary</strong>
             <span>{profile?.role}</span>
           </div>
-          <button onClick={onClose} className="mobile-menu-toggle" type="button" style={{ marginLeft: "auto" }}>
+
+          <button
+            type="button"
+            className="mobile-menu-toggle ml-auto"
+            onClick={onClose}
+            aria-label="Close sidebar"
+          >
             <X size={20} />
           </button>
         </div>
+
+        {/* Navigation */}
         <nav>
-          {navItems.map(([key, NavIcon, label]) => {
+          {navItems.map(([key, Icon, label]) => {
             if (key === "users" && !canManageUsers) return null;
             if (key === "genres" && !canManageLibrary) return null;
+
             return (
               <button
-                className={activeTab === key ? "active" : ""}
                 key={key}
+                type="button"
+                className={activeTab === key ? "active" : ""}
+                aria-current={activeTab === key ? "page" : undefined}
                 onClick={() => {
                   onTabChange(key);
                   onClose();
                 }}
-                type="button"
               >
-                <NavIcon size={18} />
-                {label}
+                <Icon size={18} />
+                <span>{label}</span>
               </button>
             );
           })}
         </nav>
+
+        {/* User profile */}
         <div className="profile-box">
           <UserRound size={18} />
+
           <div>
             <strong>{profile?.name || "Library User"}</strong>
             <span>{profile?.email}</span>
           </div>
         </div>
-        <Button onClick={onSignOut} variant="secondary">
+
+        {/* Sign out */}
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={onSignOut}
+          title="Sign out"
+          aria-label="Sign out"
+        >
           <LogOut size={16} />
-          Sign out
+          <span>Sign out</span>
         </Button>
       </aside>
+
+      {/* Mobile overlay */}
       {isOpen && (
-        <div className="main-overlay is-visible" onClick={onClose} />
+        <div
+          className="main-overlay is-visible"
+          onClick={onClose}
+          aria-hidden="true"
+        />
       )}
     </>
   );
 };
 
-export default Sidebar;
-
+export default React.memo(Sidebar);
