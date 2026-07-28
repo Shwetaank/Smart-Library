@@ -2,7 +2,6 @@ import { Search } from "lucide-react";
 import BookCard from "@/components/ui/BookCard";
 import { BookFormPanel } from "@/components/ui/BookForm";
 import type { Book, BookForm, Genre, PageResult } from "@/types";
-import { toBookForm } from "@/lib/api";
 
 interface CatalogViewProps {
   search: string;
@@ -11,11 +10,11 @@ interface CatalogViewProps {
   onGenreChange: (genre: string) => void;
   genres: Genre[];
   books: PageResult<Book>;
-  onOpenBook: (id: string) => Promise<void>;
-  onBorrow: (id: string) => Promise<void>;
-  onReserve: (id: string) => Promise<void>;
+  onOpenBook: (id: string) => Promise<Book>;
+  onBorrow: (id: string) => Promise<any>;
+  onReserve: (id: string) => Promise<any>;
   onEditBook: (book: Book) => void;
-  onDeleteBook: (id: string) => void;
+  onDeleteBook: (id: string) => Promise<any>;
   canManageLibrary: boolean;
   bookForm: BookForm;
   genresForForm: Genre[];
@@ -25,7 +24,6 @@ interface CatalogViewProps {
   onSaveBook: () => Promise<void>;
   onCancelEdit: () => void;
 }
-
 export function CatalogView({
   search,
   onSearchChange,

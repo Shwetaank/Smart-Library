@@ -11,11 +11,11 @@ import type { Book } from "@/types";
 
 type BookCardProps = {
     book: Book;
-    onOpen: (id: string) => void;
-    onBorrow: (id: string) => void;
-    onReserve: (id: string) => void;
+    onOpen: (id: string) => Promise<any>;
+    onBorrow: (id: string) => Promise<any>;
+    onReserve: (id: string) => Promise<any>;
     onEdit: (book: Book) => void;
-    onDelete: (id: string) => void;
+    onDelete: (id: string) => Promise<any>;
     canManageLibrary: boolean;
 };
 

@@ -60,7 +60,7 @@ export function useBooks(token: string) {
 
   // Create or update book
   const saveBook = useCallback(
-    async (genres: Genre[]) => {
+    async (bookForm: BookForm, genres: Genre[]) => {
       const payload = toBookPayload(bookForm);
 
       let detailBookId: string | undefined;
@@ -96,12 +96,12 @@ export function useBooks(token: string) {
 
       return detailBookId;
     },
-    [bookForm, token]
+    [token]
   );
 
   // Delete book
   const deleteBook = useCallback(
-    async (id: string) => {
+    async (id: string, selectedBook: Book | null) => {
       await apiRequest<null>(`/books/${id}`, token, {
         method: "DELETE",
       });
@@ -110,7 +110,7 @@ export function useBooks(token: string) {
         setSelectedBook(null);
       }
     },
-    [token, selectedBook]
+    [token]
   );
 
   // Upload book cover

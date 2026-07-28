@@ -51,6 +51,6 @@ export function useToast() {
       showError,
       dismissToast,
     }),
-    [toast, showToast, showError, dismissToast]
+    [showToast, showError, dismissToast]
   );
 }
