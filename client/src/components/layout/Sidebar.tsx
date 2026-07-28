@@ -9,15 +9,15 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  profile: any;
+  profile: { name?: string | null; email: string; role: string } | null;
   onSignOut: () => void;
   activeTab: string;
-  onTabChange: (tab: any) => void;
+  onTabChange: (tab: string) => void;
   canManageUsers: boolean;
   canManageLibrary: boolean;
 }
@@ -32,73 +32,67 @@ const Sidebar: React.FC<SidebarProps> = ({
   canManageUsers,
   canManageLibrary,
 }) => {
+  const navItems = [
+    ["catalog", BookOpen, "Catalog"],
+    ["loans", CalendarClock, "Loans"],
+    ["reservations", RefreshCw, "Reservations"],
+    ["genres", Library, "Genres"],
+    ["users", Users, "Users"],
+  ] as const;
+
   return (
     <>
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out md:relative md:translate-x-0"`}
+        className={`sidebar ${isOpen ? "is-open" : ""}`}
       >
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center">
-            <Library size={28} />
-            <div className="ml-2">
-              <strong className="block text-lg">SmartLibrary</strong>
-              <span className="text-sm text-gray-500">{profile.role}</span>
-            </div>
+        <div className="sidebar-brand">
+          <Library size={28} />
+          <div>
+            <strong>SmartLibrary</strong>
+            <span>{profile?.role}</span>
           </div>
-          <button onClick={onClose} className="md:hidden">
-            <X size={24} />
+          <button onClick={onClose} className="mobile-menu-toggle" type="button" style={{ marginLeft: "auto" }}>
+            <X size={20} />
           </button>
         </div>
-        <nav className="p-4">
-          {[
-            ["catalog", BookOpen, "Catalog"],
-            ["loans", CalendarClock, "Loans"],
-            ["reservations", RefreshCw, "Reservations"],
-            ["genres", Library, "Genres"],
-            ["users", Users, "Users"],
-          ].map(([key, NavIcon, label]) => {
+        <nav>
+          {navItems.map(([key, NavIcon, label]) => {
             if (key === "users" && !canManageUsers) return null;
             if (key === "genres" && !canManageLibrary) return null;
             return (
-              <Button
-                variant={activeTab === key ? "secondary" : "ghost"}
-                className="w-full justify-start mb-2"
+              <button
+                className={activeTab === key ? "active" : ""}
                 key={key}
                 onClick={() => {
                   onTabChange(key);
                   onClose();
                 }}
+                type="button"
               >
-                <NavIcon size={18} className="mr-2" />
+                <NavIcon size={18} />
                 {label}
-              </Button>
+              </button>
             );
           })}
         </nav>
-        <div className="absolute bottom-0 w-full p-4 border-t">
-          <div className="flex items-center mb-4">
-            <UserRound size={18} />
-            <div className="ml-2">
-              <strong>{profile.name || "Library User"}</strong>
-              <span className="block text-sm text-gray-500">{profile.email}</span>
-            </div>
+        <div className="profile-box">
+          <UserRound size={18} />
+          <div>
+            <strong>{profile?.name || "Library User"}</strong>
+            <span>{profile?.email}</span>
           </div>
-          <Button onClick={onSignOut} variant="outline" className="w-full">
-            <LogOut size={16} className="mr-2" />
-            Sign out
-          </Button>
         </div>
+        <Button onClick={onSignOut} variant="secondary">
+          <LogOut size={16} />
+          Sign out
+        </Button>
       </aside>
       {isOpen && (
-        <div
-          className="fixed inset-0 z-20 bg-black bg-opacity-50 md:hidden"
-          onClick={onClose}
-        ></div>
+        <div className="main-overlay is-visible" onClick={onClose} />
       )}
     </>
   );
 };
 
 export default Sidebar;
+
