@@ -57,6 +57,6 @@ export function useLoans(token: string) {
       returnLoan,
       renewLoan,
     }),
-    [loadLoans, borrowBook, returnLoan, renewLoan]
+    [loans, loadLoans, borrowBook, returnLoan, renewLoan]
   );
 }

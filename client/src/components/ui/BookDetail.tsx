@@ -3,278 +3,293 @@ import {
   ArrowLeft,
   BookOpen,
   CalendarClock,
-  Check,
+  Pencil,
   Trash2,
   Upload,
   X,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDate } from "@/lib/api";
-import type { Book, BookForm, Genre, Loan, Reservation } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { formatDate, toBookForm } from "@/lib/api";
+import type { Book } from "@/types";
+import { emptyBookForm } from "@/types";
+import { useAppContext } from "@/contexts/AppContext";
 
-type BookDetailProps = {
-  book: Book;
-  bookForm: BookForm;
-  genres: Genre[];
-  selectedBookLoan?: Loan;
-  selectedBookReservation?: Reservation;
-  selectedBookLoading: boolean;
-  coverUploading: boolean;
-  canManageLibrary: boolean;
-  onClose: () => void;
-  onBorrow: (id: string) => void;
-  onReserve: (id: string) => void;
-  onEdit: (book: Book) => void;
-  onDelete: (id: string) => void;
-  onFormFieldChange: (field: Partial<BookForm>) => void;
-  onUploadCover: (file?: File) => void;
-  onSaveBook: () => void;
-  onCancelEdit: () => void;
-};
+const BookDetail = () => {
+  const {
+    books,
+    genres,
+    selectedBookLoan,
+    selectedBookReservation,
+    coverUploading,
+    auth,
+    handlers,
+  } = useAppContext();
 
-const BookDetail = ({
-  book,
-  bookForm,
-  genres,
-  selectedBookLoan,
-  selectedBookReservation,
-  selectedBookLoading,
-  coverUploading,
-  canManageLibrary,
-  onClose,
-  onBorrow,
-  onReserve,
-  onEdit,
-  onDelete,
-  onFormFieldChange,
-  onUploadCover,
-  onSaveBook,
-  onCancelEdit,
-}: BookDetailProps) => {
+  const {
+    handleBorrow,
+    handleReserve,
+    handleSaveBook,
+    handleDeleteBook,
+    handleUploadCover,
+  } = handlers;
+  
+  const book = books.selectedBook;
+
+  if (!book) {
+    return null;
+  }
+
   const availabilityPercent = Math.max(
     0,
     Math.min(100, (book.availableCopies / book.quantity) * 100),
   );
 
   return (
-    // Book details view
-    <section className="book-detail-grid">
-      <article className="book-detail-main">
-        {/* Back navigation */}
-        <button className="back-link" onClick={onClose} type="button">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {/* Main Content */}
+      <div className="space-y-6 lg:col-span-2">
+        {/* Back button */}
+        <Button variant="ghost" size="sm" onClick={books.closeBook} className="gap-1.5">
           <ArrowLeft size={16} />
           Back to catalog
-        </button>
+        </Button>
 
-        {/* Book information */}
-        <div className="book-detail-hero">
-          <div className="book-detail-cover">
-            {book.coverUrl ? (
-              <img alt={`${book.title} cover`} src={book.coverUrl} />
-            ) : (
-              book.title.slice(0, 1)
-            )}
-          </div>
+        {/* Book Hero */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex flex-col gap-6 sm:flex-row">
+              {/* Cover */}
+              <div className="flex h-48 w-36 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-500 text-4xl font-bold text-white shadow-md">
+                {book.coverUrl ? (
+                  <img alt={`${book.title} cover`} src={book.coverUrl} className="h-full w-full object-cover" />
+                ) : (
+                  book.title.slice(0, 1)
+                )}
+              </div>
 
-          <div className="book-detail-copy">
-            <span className="book-kicker">
-              {book.genre?.name ?? "Uncategorized"}
-            </span>
+              {/* Info */}
+              <div className="flex-1 space-y-3">
+                <Badge variant="secondary" className="w-fit">
+                  {book.genre?.name ?? "Uncategorized"}
+                </Badge>
 
-            <h2>{book.title}</h2>
+                <h2 className="text-2xl font-bold text-foreground md:text-3xl">
+                  {book.title}
+                </h2>
 
-            <p>by {book.author}</p>
+                <p className="text-sm text-muted-foreground">by {book.author}</p>
 
-            <div className="detail-actions">
-              <Button
-                onClick={() => onBorrow(book.id)}
-                disabled={
-                  book.availableCopies <= 0 || Boolean(selectedBookLoan)
-                }
-              >
-                <BookOpen size={16} />
-                {selectedBookLoan ? "Borrowed" : "Borrow"}
-              </Button>
-
-              <Button
-                onClick={() => onReserve(book.id)}
-                variant="outline"
-                disabled={Boolean(selectedBookReservation)}
-              >
-                <CalendarClock size={16} />
-                {selectedBookReservation ? "Hold placed" : "Place hold"}
-              </Button>
-
-              {canManageLibrary && (
-                <>
+                <div className="flex flex-wrap gap-2 pt-2">
                   <Button
-                    onClick={() => onEdit(book)}
-                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleBorrow(book.id)}
+                    disabled={book.availableCopies <= 0 || Boolean(selectedBookLoan)}
                   >
-                    <Upload size={16} />
-                    Edit
+                    <BookOpen size={14} />
+                    {selectedBookLoan ? "Borrowed" : "Borrow"}
                   </Button>
 
                   <Button
-                    onClick={() => onDelete(book.id)}
-                    variant="destructive"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleReserve(book.id)}
+                    disabled={Boolean(selectedBookReservation)}
                   >
-                    <Trash2 size={16} />
-                    Delete
+                    <CalendarClock size={14} />
+                    {selectedBookReservation ? "Hold placed" : "Place hold"}
                   </Button>
-                </>
-              )}
+
+                  {auth.canManageLibrary && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => books.setBookForm(toBookForm(book))}
+                      >
+                        <Pencil size={14} />
+                        Edit
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteBook(book.id)}
+                      >
+                        <Trash2 size={14} />
+                        Delete
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Availability status */}
-        <div className="availability-panel">
-          <div>
-            <span>Available copies</span>
-            <strong>
-              {book.availableCopies} of {book.quantity}
-            </strong>
-          </div>
+        {/* Availability */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Availability</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-muted-foreground">Available copies</span>
+              <span className="text-sm font-semibold">
+                {book.availableCopies} of {book.quantity}
+              </span>
+            </div>
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${availabilityPercent > 50
+                    ? "bg-emerald-500"
+                    : availabilityPercent > 0
+                      ? "bg-amber-500"
+                      : "bg-red-500"
+                  }`}
+                style={{ width: `${availabilityPercent}%` }}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          <div className="availability-meter" aria-label="Availability">
-            <span style={{ width: `${availabilityPercent}%` }} />
-          </div>
-        </div>
+        {/* Description */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Description</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {book.description || "No description has been added for this book yet."}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Book description */}
-        <section className="detail-section">
-          <h3>Description</h3>
-
-          <p>
-            {book.description ||
-              "No description has been added for this book yet."}
-          </p>
-        </section>
-      </article>
-
-      {/* User activity */}
-      <aside className="book-detail-side">
-        <section>
-          <h3>Your Activity</h3>
-
-          <dl>
+      {/* Sidebar */}
+      <div className="space-y-6">
+        {/* Activity */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Your Activity</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
             <div>
-              <dt>Loan</dt>
-
-              <dd>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Loan</p>
+              <p className="text-sm font-medium">
                 {selectedBookLoan
                   ? `Due ${formatDate(selectedBookLoan.dueDate)}`
                   : "No active loan"}
-              </dd>
+              </p>
             </div>
-
+            <Separator />
             <div>
-              <dt>Reservation</dt>
-
-              <dd>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Reservation</p>
+              <p className="text-sm font-medium">
                 {selectedBookReservation
                   ? `Expires ${formatDate(selectedBookReservation.expiresAt)}`
                   : "No active hold"}
-              </dd>
+              </p>
             </div>
-          </dl>
-        </section>
+          </CardContent>
+        </Card>
 
-        {selectedBookLoading && (
-          <div className="alert success">Refreshing book...</div>
+        {books.selectedBookLoading && (
+          <Card className="border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/50">
+            <CardContent className="py-3">
+              <p className="text-xs text-emerald-700 dark:text-emerald-300 animate-pulse">
+                Refreshing book...
+              </p>
+            </CardContent>
+          </Card>
         )}
-      </aside>
 
-      {/* Edit book form */}
-      {canManageLibrary && bookForm.id === book.id && (
-        <aside className="side-panel detail-edit-panel">
-          <h2>Edit book</h2>
-
-          <input
-            value={bookForm.title}
-            onChange={(e) => onFormFieldChange({ title: e.target.value })}
-            placeholder="Title"
-          />
-
-          <input
-            value={bookForm.author}
-            onChange={(e) => onFormFieldChange({ author: e.target.value })}
-            placeholder="Author"
-          />
-
-          <input
-            value={bookForm.isbn}
-            onChange={(e) => onFormFieldChange({ isbn: e.target.value })}
-            placeholder="ISBN"
-          />
-
-          <select
-            value={bookForm.genreId}
-            onChange={(e) => onFormFieldChange({ genreId: e.target.value })}
-          >
-            {genres.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
-
-          <input
-            value={bookForm.publishedYear}
-            onChange={(e) =>
-              onFormFieldChange({ publishedYear: e.target.value })
-            }
-            placeholder="Published year"
-            type="number"
-          />
-
-          <input
-            value={bookForm.quantity}
-            onChange={(e) => onFormFieldChange({ quantity: e.target.value })}
-            placeholder="Quantity"
-            type="number"
-          />
-
-          <input
-            value={bookForm.coverUrl}
-            onChange={(e) => onFormFieldChange({ coverUrl: e.target.value })}
-            placeholder="Cover image URL"
-          />
-
-          <label className="file-control">
-            <Upload size={16} />
-            <span>{coverUploading ? "Uploading..." : "Upload cover"}</span>
-
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={coverUploading}
-              onChange={(e) => onUploadCover(e.target.files?.[0])}
-            />
-          </label>
-
-          <textarea
-            value={bookForm.description}
-            onChange={(e) =>
-              onFormFieldChange({ description: e.target.value })
-            }
-            placeholder="Description"
-          />
-
-          <Button onClick={onSaveBook}>
-            <Check size={16} />
-            Save changes
-          </Button>
-
-          <Button onClick={onCancelEdit} variant="outline">
-            <X size={16} />
-            Close editor
-          </Button>
-        </aside>
-      )}
-    </section>
+        {/* Edit Book Form */}
+        {auth.canManageLibrary && books.bookForm.id === book.id && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Edit book</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Input
+                value={books.bookForm.title}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, title: e.target.value }))}
+                placeholder="Title"
+              />
+              <Input
+                value={books.bookForm.author}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, author: e.target.value }))}
+                placeholder="Author"
+              />
+              <Input
+                value={books.bookForm.isbn}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, isbn: e.target.value }))}
+                placeholder="ISBN"
+              />
+              <select
+                value={books.bookForm.genreId}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, genreId: e.target.value }))}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+              >
+                {genres.genres.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
+              <Input
+                value={books.bookForm.publishedYear}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, publishedYear: e.target.value }))}
+                placeholder="Published year"
+                type="number"
+              />
+              <Input
+                value={books.bookForm.quantity}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, quantity: e.target.value }))}
+                placeholder="Quantity"
+                type="number"
+              />
+              <Input
+                value={books.bookForm.coverUrl}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, coverUrl: e.target.value }))}
+                placeholder="Cover image URL"
+              />
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-input px-3 py-2 text-sm text-muted-foreground hover:bg-muted/50 transition-colors">
+                <Upload size={14} />
+                <span>{coverUploading ? "Uploading..." : "Upload cover"}</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={coverUploading}
+                  className="hidden"
+                  onChange={(e) => handleUploadCover(e.target.files?.[0])}
+                />
+              </label>
+              <textarea
+                value={books.bookForm.description}
+                onChange={(e) => books.setBookForm((prev) => ({...prev, description: e.target.value }))}
+                placeholder="Description"
+                className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm resize-y"
+              />
+              <Button onClick={handleSaveBook} className="w-full">
+                <Check size={14} />
+                Save changes
+              </Button>
+              <Button onClick={() => books.setBookForm({...emptyBookForm, genreId: genres.genres[0]?.id ?? ""})} variant="outline" className="w-full">
+                <X size={14} />
+                Close editor
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
   );
 };
 
 export default React.memo(BookDetail);
+

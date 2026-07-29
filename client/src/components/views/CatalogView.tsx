@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import BookCard from "@/components/ui/BookCard";
 import { BookFormPanel } from "@/components/ui/BookForm";
 import type { Book, BookForm, Genre, PageResult } from "@/types";
@@ -24,6 +25,7 @@ interface CatalogViewProps {
   onSaveBook: () => Promise<void>;
   onCancelEdit: () => void;
 }
+
 export function CatalogView({
   search,
   onSearchChange,
@@ -46,20 +48,23 @@ export function CatalogView({
   onCancelEdit,
 }: CatalogViewProps) {
   return (
-    <section className="content-grid">
-      <div className="main-column">
-        <div className="toolbar">
-          <label className="search-input">
-            <Search size={16} />
-            <input
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="space-y-4 lg:col-span-2">
+        {/* Toolbar */}
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Search books"
+              placeholder="Search books..."
+              className="pl-9"
             />
-          </label>
+          </div>
           <select
             value={selectedGenre}
             onChange={(e) => onGenreChange(e.target.value)}
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm sm:w-44"
           >
             <option value="">All genres</option>
             {genres.map((g) => (
@@ -69,7 +74,9 @@ export function CatalogView({
             ))}
           </select>
         </div>
-        <div className="book-grid">
+
+        {/* Book Grid */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-2">
           {books.items.map((book) => (
             <BookCard
               key={book.id}
@@ -82,27 +89,34 @@ export function CatalogView({
               canManageLibrary={canManageLibrary}
             />
           ))}
+
           {!books.items.length && (
-            <article className="empty-state">
-              <Search size={22} />
-              <strong>No books found</strong>
-              <span>Try another search term or clear the genre filter.</span>
-            </article>
+            <div className="col-span-full flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 py-16 text-center">
+              <Search size={32} className="mb-3 text-muted-foreground/50" />
+              <h3 className="mb-1 text-base font-semibold text-foreground">No books found</h3>
+              <p className="text-sm text-muted-foreground">
+                Try another search term or clear the genre filter.
+              </p>
+            </div>
           )}
         </div>
       </div>
 
+      {/* Side Panel - Book Form */}
       {canManageLibrary && (
-        <BookFormPanel
-          bookForm={bookForm}
-          genres={genresForForm}
-          coverUploading={coverUploading}
-          onFieldChange={onBookFormFieldChange}
-          onUploadCover={onUploadCover}
-          onSave={onSaveBook}
-          onCancelEdit={onCancelEdit}
-        />
+        <div className="order-first lg:order-last">
+          <BookFormPanel
+            bookForm={bookForm}
+            genres={genresForForm}
+            coverUploading={coverUploading}
+            onFieldChange={onBookFormFieldChange}
+            onUploadCover={onUploadCover}
+            onSave={onSaveBook}
+            onCancelEdit={onCancelEdit}
+          />
+        </div>
       )}
-    </section>
+    </div>
   );
 }
+

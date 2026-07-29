@@ -1,33 +1,36 @@
 import React from "react";
 import { BookOpen, Menu, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useAppContext } from "@/contexts/AppContext";
 
-interface HeaderProps {
-  onMenuClick?: () => void;
-  title: string;
-  subtitle?: string;
-  loading?: boolean;
-  onRefresh?: () => void;
-}
+const Header = () => {
+  const {
+    isMobileMenuOpen,
+    setIsMobileMenuOpen,
+    getHeaderTitle,
+    books,
+    genres,
+    loading,
+    loadCore,
+  } = useAppContext();
 
-const Header = ({
-  onMenuClick,
-  title,
-  subtitle,
-  loading = false,
-  onRefresh,
-}: HeaderProps) => {
+  const onMenuClick = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const title = getHeaderTitle();
+  const subtitle = books.selectedBook
+    ? books.selectedBook.id
+    : `${books.books.total} books indexed across ${genres.genres.length} genres.`;
+
   return (
-    // Application header
-    <header className="topbar">
-      <div className="topbar-left">
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-4 py-3 backdrop-blur-xl md:px-6 lg:px-8">
+      <div className="flex items-center gap-3 min-w-0">
         {/* Mobile menu button */}
         {onMenuClick && (
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             size="icon"
-            className="mobile-menu-toggle"
+            className="shrink-0 lg:hidden"
             onClick={onMenuClick}
             aria-label="Open navigation menu"
           >
@@ -35,33 +38,41 @@ const Header = ({
           </Button>
         )}
 
-        {/* Application logo */}
-        <BookOpen size={22} className="text-primary" />
+        {/* Icon */}
+        <div className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/10 to-cyan-500/10">
+          <BookOpen size={18} className="text-emerald-500" />
+        </div>
 
-        {/* Page title */}
-        <div className="flex flex-col">
-          <h1 className="truncate text-xl font-semibold">{title}</h1>
+        {/* Title & subtitle */}
+        <div className="min-w-0">
+          <h1 className="truncate text-lg font-semibold text-foreground md:text-xl">
+            {title}
+          </h1>
           {subtitle && (
-            <p className="text-sm text-muted-foreground">{subtitle}</p>
+            <p className="truncate text-xs text-muted-foreground md:text-sm">
+              {subtitle}
+            </p>
           )}
         </div>
       </div>
 
       {/* Refresh button */}
-      {onRefresh && (
+      {loadCore && (
         <Button
           type="button"
           variant="outline"
-          onClick={onRefresh}
+          size="sm"
+          onClick={loadCore}
           disabled={loading}
-          aria-label="Refresh page"
-          title="Refresh data"
+          className="shrink-0"
         >
           <RefreshCw
-            size={16}
-            className={loading ? "animate-spin" : ""}
+            size={14}
+            className={cn("transition-transform", loading && "animate-spin")}
           />
-          <span>{loading ? "Refreshing..." : "Refresh"}</span>
+          <span className="hidden sm:inline">
+            {loading ? "Refreshing..." : "Refresh"}
+          </span>
         </Button>
       )}
     </header>
@@ -69,3 +80,4 @@ const Header = ({
 };
 
 export default React.memo(Header);
+

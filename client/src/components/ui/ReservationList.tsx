@@ -1,58 +1,70 @@
 import { Check, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate } from "@/lib/api";
-import type { Reservation } from "@/types";
+import { useAppContext } from "@/contexts/AppContext";
 
-type ReservationListProps = Readonly<{
-    reservations: Reservation[];
-    canManageLibrary: boolean;
-    onFulfill: (id: string) => void;
-    onCancel: (id: string) => void;
-}>;
+const statusColors: Record<string, "default" | "secondary" | "success" | "warning" | "outline"> = {
+    PENDING: "warning",
+    FULFILLED: "success",
+    CANCELLED: "secondary",
+    EXPIRED: "outline",
+};
 
-export function ReservationList({
-    reservations,
-    canManageLibrary,
-    onFulfill,
-    onCancel,
-}: ReservationListProps) {
+export function ReservationList() {
+    const {
+        reservations: { reservations },
+        auth: { canManageLibrary },
+        handlers: { handleFulfillReservation, handleCancelReservation },
+    } = useAppContext();
+
     return (
-        // Reservation list
-        <section className="table-panel">
+        <div className="space-y-3">
             {reservations.map((reservation) => (
-                <article className="list-row" key={reservation.id}>
-                    <div>
-                        <strong>{reservation.bookId}</strong>
+                <Card key={reservation.id} className="transition-all hover:shadow-sm">
+                    <CardContent className="flex items-center justify-between gap-4 p-4">
+                        <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center gap-2">
+                                <p className="text-sm font-semibold text-foreground truncate">
+                                    {reservation.bookId}
+                                </p>
+                                <Badge
+                                    variant={statusColors[reservation.status] ?? "outline"}
+                                    className="shrink-0 text-[10px]"
+                                >
+                                    {reservation.status}
+                                </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Expires {formatDate(reservation.expiresAt)}
+                            </p>
+                        </div>
 
-                        <span>
-                            {reservation.status} expires{" "}
-                            {formatDate(reservation.expiresAt)}
-                        </span>
-                    </div>
-
-                    {/* Reservation actions */}
-                    <div className="row-actions">
-                        {canManageLibrary && reservation.status === "PENDING" && (
+                        <div className="flex shrink-0 gap-2">
+                            {canManageLibrary && reservation.status === "PENDING" && (
+                                <Button
+                                    onClick={() => handleFulfillReservation(reservation.id)}
+                                    size="sm"
+                                    className="h-8"
+                                >
+                                    <Check size={12} />
+                                    <span className="hidden sm:inline">Fulfill</span>
+                                </Button>
+                            )}
                             <Button
-                                onClick={() => onFulfill(reservation.id)}
+                                onClick={() => handleCancelReservation(reservation.id)}
                                 size="sm"
+                                variant="outline"
+                                className="h-8"
                             >
-                                <Check size={14} />
-                                Fulfill
+                                <X size={12} />
+                                <span className="hidden sm:inline">Cancel</span>
                             </Button>
-                        )}
-
-                        <Button
-                            onClick={() => onCancel(reservation.id)}
-                            size="sm"
-                            variant="outline"
-                        >
-                            <X size={14} />
-                            Cancel
-                        </Button>
-                    </div>
-                </article>
+                        </div>
+                    </CardContent>
+                </Card>
             ))}
 
             {!reservations.length && (
@@ -62,6 +74,7 @@ export function ReservationList({
                     text="Placed holds will show up here."
                 />
             )}
-        </section>
+        </div>
     );
 }
+

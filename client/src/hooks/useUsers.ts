@@ -47,6 +47,6 @@ export function useUsers(token: string) {
       updateUserRole,
       deleteUser,
     }),
-    [loadUsers, updateUserRole, deleteUser]
+    [users, loadUsers, updateUserRole, deleteUser]
   );
 }

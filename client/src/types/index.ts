@@ -77,13 +77,6 @@ export type LoginResult = {
   user: User;
 };
 
-// UI types
-export type ToastMessage = {
-  id: number;
-  title: string;
-  variant: "success" | "destructive";
-};
-
 export type BookForm = {
   id?: string;
   title: string;

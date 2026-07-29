@@ -1,56 +1,27 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ToastMessage } from "@/types";
+import { toast as sonnerToast } from "sonner";
 
 export function useToast() {
-  // Toast state
-  const [toast, setToast] = useState<ToastMessage | null>(null);
-
-  // Show toast
-  const showToast = useCallback(
-    (title: string, variant: ToastMessage["variant"] = "success") => {
-      setToast({
-        id: Date.now(),
-        title,
-        variant,
+  return {
+    showToast: (
+      message: string,
+      variant: "success" | "destructive" = "success",
+    ) => {
+      if (variant === "destructive") {
+        sonnerToast.error(message, {
+          duration: 3500,
+        });
+      } else {
+        sonnerToast.success(message, {
+          duration: 2500,
+        });
+      }
+    },
+    showError: (error: unknown) => {
+      const message =
+        error instanceof Error ? error.message : "Something went wrong";
+      sonnerToast.error(message, {
+        duration: 4000,
       });
     },
-    []
-  );
-
-  // Show error toast
-  const showError = useCallback(
-    (value: unknown) => {
-      showToast(
-        value instanceof Error ? value.message : "Something went wrong",
-        "destructive"
-      );
-    },
-    [showToast]
-  );
-
-  // Dismiss toast
-  const dismissToast = useCallback(() => {
-    setToast(null);
-  }, []);
-
-  // Auto-dismiss toast
-  useEffect(() => {
-    if (!toast) return;
-
-    const timeoutId = window.setTimeout(() => {
-      setToast(null);
-    }, 3600);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [toast]);
-
-  return useMemo(
-    () => ({
-      toast,
-      showToast,
-      showError,
-      dismissToast,
-    }),
-    [showToast, showError, dismissToast]
-  );
+  };
 }

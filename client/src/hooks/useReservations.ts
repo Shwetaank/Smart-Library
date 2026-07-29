@@ -55,6 +55,12 @@ export function useReservations(token: string) {
       cancelReservation,
       fulfillReservation,
     }),
-    [loadReservations, reserveBook, cancelReservation, fulfillReservation]
+    [
+      reservations,
+      loadReservations,
+      reserveBook,
+      cancelReservation,
+      fulfillReservation,
+    ]
   );
 }

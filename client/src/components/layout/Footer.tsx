@@ -1,18 +1,14 @@
 const Footer = () => {
   return (
-    // Application footer
-    <footer className="border-t bg-background">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 py-4 text-sm text-muted-foreground md:flex-row">
-        {/* Copyright */}
+    <footer className="mt-auto border-t border-border bg-background">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 py-4 text-xs text-muted-foreground md:flex-row md:text-sm">
         <p>
-          © {new Date().getFullYear()}{" "}
-          <span className="font-semibold text-foreground">SmartLibrary</span>{" "}
-          All rights reserved.
+          &copy; {new Date().getFullYear()}{" "}
+          <span className="font-semibold text-foreground">SmartLibrary</span>
+          {" "}All rights reserved.
         </p>
-
-        {/* Tech stack */}
-        <p>
-          Built with ❤️ using React, Express, Azure SQL &amp; Azure Blob Storage
+        <p className="text-center">
+          Built with <span className="text-red-500">&#9829;</span> using React, Express, Azure SQL &amp; Azure Blob Storage
         </p>
       </div>
     </footer>
@@ -20,3 +16,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

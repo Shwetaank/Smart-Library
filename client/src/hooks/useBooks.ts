@@ -155,6 +155,12 @@ export function useBooks(token: string) {
       uploadCover,
     }),
     [
+      books,
+      selectedBook,
+      selectedBookLoading,
+      bookForm,
+      search,
+      selectedGenre,
       loadBooks,
       openBook,
       closeBook,

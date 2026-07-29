@@ -1,15 +1,9 @@
 import { BookOpen, CalendarClock } from "lucide-react";
 
 import type { Book, Loan, Reservation, Tab } from "@/types";
-import { useAuth } from "@/hooks/useAuth";
-import { useBooks } from "@/hooks/useBooks";
-import { useGenres } from "@/hooks/useGenres";
-import { useLoans } from "@/hooks/useLoans";
-import { useReservations } from "@/hooks/useReservations";
-import { useToast } from "@/hooks/useToast";
-import { useUsers } from "@/hooks/useUsers";
 import { toBookForm } from "@/lib/api";
 import { emptyBookForm } from "@/types";
+import { useAppContext } from "@/contexts/AppContext";
 
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -20,85 +14,56 @@ import { LoanList } from "@/components/ui/LoanList";
 import { ProfilePanel } from "@/components/ui/ProfilePanel";
 import { ReservationList } from "@/components/ui/ReservationList";
 import { StatsGrid } from "@/components/ui/StatsGrid";
-import { Toast } from "@/components/ui/Toast";
 import { UserManager } from "@/components/ui/UserManager";
 import { CatalogView } from "@/components/views/CatalogView";
 
-interface AuthenticatedAppProps {
-  toast: ReturnType<typeof useToast>["toast"];
-  dismissToast: ReturnType<typeof useToast>["dismissToast"];
-  auth: ReturnType<typeof useAuth>;
-  books: ReturnType<typeof useBooks>;
-  loans: ReturnType<typeof useLoans>;
-  reservations: ReturnType<typeof useReservations>;
-  genres: ReturnType<typeof useGenres>;
-  users: ReturnType<typeof useUsers>;
-  tab: Tab;
-  setTab: (tab: Tab) => void;
-  isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (isOpen: boolean) => void;
-  loading: boolean;
-  activeLoans: Loan[];
-  overdueLoans: Loan[];
-  coverUploading: boolean;
-  loadCore: () => Promise<void>;
-  handleBorrow: (bookId: string) => Promise<void>;
-  handleReserve: (bookId: string) => Promise<void>;
-  handleSaveBook: () => Promise<void>;
-  handleDeleteBook: (id: string) => Promise<void>;
-  handleUploadCover: (file?: File) => Promise<void>;
-  handleReturnLoan: (loanId: string) => Promise<void>;
-  handleRenewLoan: (loanId: string) => Promise<void>;
-  handleCancelReservation: (id: string) => Promise<void>;
-  handleFulfillReservation: (id: string) => Promise<void>;
-  handleSaveGenre: (name: string) => Promise<void>;
-  handleDeleteGenre: (id: string) => Promise<void>;
-  handleUpdateUserRole: (id: string, role: string) => Promise<void>;
-  handleDeleteUser: (id: string) => Promise<void>;
-  handleSaveProfile: () => Promise<void>;
-  getHeaderTitle: () => string;
-  selectedBookLoan: Loan | undefined;
-  selectedBookReservation: Reservation | undefined;
-}
+export function AuthenticatedApp() {
+  const {
+    auth,
+    books,
+    loans,
+    reservations,
+    genres,
+    users,
+    tab,
+    setTab,
+    isMobileMenuOpen,
+    setIsMobileMenuOpen,
+    loading,
+    activeLoans,
+    overdueLoans,
+    coverUploading,
+    loadCore,
+    handlers,
+    getHeaderTitle,
+    selectedBookLoan,
+    selectedBookReservation,
+  } = useAppContext();
 
-export function AuthenticatedApp({
-  toast,
-  dismissToast,
-  auth,
-  books,
-  loans,
-  reservations,
-  genres,
-  users,
-  tab,
-  setTab,
-  isMobileMenuOpen,
-  setIsMobileMenuOpen,
-  loading,
-  activeLoans,
-  overdueLoans,
-  coverUploading,
-  loadCore,
-  handleBorrow,
-  handleReserve,
-  handleSaveBook,
-  handleDeleteBook,
-  handleUploadCover,
-  handleReturnLoan,
-  handleRenewLoan,
-  handleCancelReservation,
-  handleFulfillReservation,
-  handleSaveGenre,
-  handleDeleteGenre,
-  handleUpdateUserRole,
-  handleDeleteUser,
-  handleSaveProfile,
-  getHeaderTitle,
-  selectedBookLoan,
-  selectedBookReservation,
-}: AuthenticatedAppProps) {
+  const {
+    handleBorrow,
+    handleReserve,
+    handleSaveBook,
+    handleDeleteBook,
+    handleUploadCover,
+    handleReturnLoan,
+    handleRenewLoan,
+    handleCancelReservation,
+    handleFulfillReservation,
+    handleSaveGenre,
+    handleDeleteGenre,
+    handleUpdateUserRole,
+    handleDeleteUser,
+    handleSaveProfile,
+  } = handlers;
+
   const stats = [
-    { label: "Books", value: books.books.total, icon: BookOpen },
+    {
+      label: "Total Books",
+      value: books.books.total,
+      icon: BookOpen,
+      color: "emerald",
+    },
     {
       label: "Available",
       value: books.books.items.reduce(
@@ -106,9 +71,20 @@ export function AuthenticatedApp({
         0
       ),
       icon: BookOpen,
+      color: "cyan",
     },
-    { label: "Active Loans", value: activeLoans.length, icon: CalendarClock },
-    { label: "Overdue", value: overdueLoans.length, icon: CalendarClock },
+    {
+      label: "Active Loans",
+      value: activeLoans.length,
+      icon: CalendarClock,
+      color: "blue",
+    },
+    {
+      label: "Overdue",
+      value: overdueLoans.length,
+      icon: CalendarClock,
+      color: "amber",
+    },
   ];
 
   const renderTabContent = () => {
@@ -210,8 +186,7 @@ export function AuthenticatedApp({
   };
 
   return (
-    <main className="app-shell">
-      <Toast toast={toast} onDismiss={dismissToast} />
+    <div className="min-h-screen bg-background">
       <Sidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
@@ -225,7 +200,7 @@ export function AuthenticatedApp({
         canManageUsers={auth.canManageUsers}
         canManageLibrary={auth.canManageLibrary}
       />
-      <section className="workspace">
+      <div className="lg:pl-64">
         <Header
           onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           title={getHeaderTitle()}
@@ -237,15 +212,18 @@ export function AuthenticatedApp({
           loading={loading}
           onRefresh={loadCore}
         />
-        {!books.selectedBook && <StatsGrid stats={stats} />}
-        {renderTabContent()}
-        <ProfilePanel
-          name={auth.profileName}
-          onNameChange={auth.setProfileName}
-          onSave={handleSaveProfile}
-        />
+        <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
+          {!books.selectedBook && <StatsGrid stats={stats} />}
+          {renderTabContent()}
+          <ProfilePanel
+            name={auth.profileName}
+            onNameChange={auth.setProfileName}
+            onSave={handleSaveProfile}
+          />
+        </main>
         <Footer />
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }
+

@@ -1,55 +1,73 @@
-import { CalendarClock, Check, RotateCcw } from "lucide-react";
+import { CalendarClock, RotateCcw, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { formatDate } from "@/lib/api";
-import type { Loan } from "@/types";
+import { useAppContext } from "@/contexts/AppContext";
 
-type LoanListProps = Readonly<{
-    loans: Loan[];
-    onReturn: (loanId: string) => void;
-    onRenew: (loanId: string) => void;
-}>;
+const statusColors: Record<string, "default" | "secondary" | "success" | "warning" | "destructive" | "outline"> = {
+    ACTIVE: "success",
+    OVERDUE: "destructive",
+    RETURNED: "secondary",
+};
 
-export function LoanList({
-    loans,
-    onReturn,
-    onRenew,
-}: LoanListProps) {
+export function LoanList() {
+    const {
+        loans: { loans },
+        handlers: { handleReturnLoan, handleRenewLoan },
+    } = useAppContext();
+
     return (
-        // Loan list
-        <section className="table-panel">
+        <div className="space-y-3">
             {loans.map((loan) => (
-                <article className="list-row" key={loan.id}>
-                    <div>
-                        <strong>{loan.book?.title ?? loan.bookId}</strong>
-
-                        <span>
-                            {loan.status} due {formatDate(loan.dueDate)}
-                        </span>
-                    </div>
-
-                    {/* Loan actions */}
-                    {loan.status === "ACTIVE" && (
-                        <div className="row-actions">
-                            <Button
-                                onClick={() => onRenew(loan.id)}
-                                size="sm"
-                                variant="outline"
-                            >
-                                <RotateCcw size={14} />
-                                Renew
-                            </Button>
-
-                            <Button
-                                onClick={() => onReturn(loan.id)}
-                                size="sm"
-                            >
-                                <Check size={14} />
-                                Return
-                            </Button>
+                <Card key={loan.id} className="transition-all hover:shadow-sm">
+                    <CardContent className="flex items-center justify-between gap-4 p-4">
+                        <div className="flex-1 min-w-0 space-y-1">
+                            <div className="flex items-center gap-2">
+                                <p className="text-sm font-semibold text-foreground truncate">
+                                    {loan.book?.title ?? loan.bookId}
+                                </p>
+                                <Badge
+                                    variant={statusColors[loan.status] ?? "outline"}
+                                    className="shrink-0 text-[10px]"
+                                >
+                                    {loan.status}
+                                </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                                Due {formatDate(loan.dueDate)}
+                                {loan.fineAmount && Number(loan.fineAmount) > 0 && (
+                                    <span className="ml-2 text-red-500">
+                                        Fine: ${Number(loan.fineAmount).toFixed(2)}
+                                    </span>
+                                )}
+                            </p>
                         </div>
-                    )}
-                </article>
+
+                        {loan.status === "ACTIVE" && (
+                            <div className="flex shrink-0 gap-2">
+                                <Button
+                                    onClick={() => handleRenewLoan(loan.id)}
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-8"
+                                >
+                                    <RotateCcw size={12} />
+                                    <span className="hidden sm:inline">Renew</span>
+                                </Button>
+                                <Button
+                                    onClick={() => handleReturnLoan(loan.id)}
+                                    size="sm"
+                                    className="h-8"
+                                >
+                                    <Check size={12} />
+                                    <span className="hidden sm:inline">Return</span>
+                                </Button>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             ))}
 
             {!loans.length && (
@@ -59,6 +77,7 @@ export function LoanList({
                     text="Borrowed books will appear here."
                 />
             )}
-        </section>
+        </div>
     );
 }
+

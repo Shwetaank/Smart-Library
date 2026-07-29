@@ -1,34 +1,38 @@
-import { Check } from "lucide-react";
+import { Check, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useAppContext } from "@/contexts/AppContext";
 
-type ProfilePanelProps = Readonly<{
-  name: string;
-  onNameChange: (name: string) => void;
-  onSave: () => void;
-}>;
+export function ProfilePanel() {
+  const {
+    auth: { profileName, setProfileName },
+    handlers: { handleSaveProfile },
+  } = useAppContext();
 
-export function ProfilePanel({
-  name,
-  onNameChange,
-  onSave,
-}: ProfilePanelProps) {
   return (
-    // Profile settings
-    <section className="profile-panel">
-      <h2>Profile</h2>
-
-      {/* Profile name */}
-      <input
-        value={name}
-        onChange={(e) => onNameChange(e.target.value)}
-        placeholder="Your name"
-      />
-
-      {/* Save profile */}
-      <Button onClick={onSave} variant="outline">
-        <Check size={16} />
-        Save profile
-      </Button>
-    </section>
+    <Card>
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <UserRound size={18} className="text-primary" />
+          <CardTitle className="text-base">Profile Settings</CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="flex-1 space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">Display name</label>
+          <Input
+            value={profileName}
+            onChange={(e) => setProfileName(e.target.value)}
+            placeholder="Your name"
+          />
+        </div>
+        <Button onClick={handleSaveProfile} variant="outline" className="shrink-0">
+          <Check size={14} />
+          Save profile
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
+

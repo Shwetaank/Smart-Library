@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiRequest } from "@/lib/api";
 import type { LoginResult, User } from "@/types";
 
@@ -9,6 +9,31 @@ export function useAuth() {
   );
   const [profile, setProfile] = useState<User | null>(null);
   const [profileName, setProfileName] = useState("");
+  const [isAuthReady, setIsAuthReady] = useState(false);
+
+  // Load current user
+  const loadProfile = useCallback(async () => {
+    if (!token) {
+      setProfile(null);
+      setIsAuthReady(true);
+      return;
+    }
+    try {
+      const me = await apiRequest<User>("/users/me", token);
+      setProfile(me);
+      setProfileName(me.name ?? "");
+    } catch (error) {
+      // Token is invalid, clear it
+      setToken("");
+      setProfile(null);
+    } finally {
+      setIsAuthReady(true);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
 
   // Sign in or register
   const signIn = useCallback(
@@ -35,6 +60,7 @@ export function useAuth() {
       setToken(session.token);
       setProfile(session.user);
       setProfileName(session.user.name ?? "");
+      setIsAuthReady(true);
     },
     []
   );
@@ -44,6 +70,7 @@ export function useAuth() {
     localStorage.removeItem("smartlibrary.jwt");
     setToken("");
     setProfile(null);
+    setIsAuthReady(true);
   }, []);
 
   // Update profile
@@ -59,16 +86,6 @@ export function useAuth() {
     },
     [token]
   );
-
-  // Load current user
-  const loadProfile = useCallback(async () => {
-    const me = await apiRequest<User>("/users/me", token);
-
-    setProfile(me);
-    setProfileName(me.name ?? "");
-
-    return me;
-  }, [token]);
 
   // Role permissions
   const canManageLibrary = useMemo(
@@ -88,18 +105,21 @@ export function useAuth() {
       signIn,
       signOut,
       saveProfile,
-      loadProfile,
       canManageLibrary,
       canManageUsers,
       isAuthenticated: !!token && !!profile,
+      isAuthReady,
     }),
     [
+      token,
+      profile,
+      profileName,
       signIn,
       signOut,
       saveProfile,
-      loadProfile,
       canManageLibrary,
       canManageUsers,
+      isAuthReady,
     ]
   );
 }

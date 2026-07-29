@@ -47,6 +47,6 @@ export function useGenres(token: string) {
       saveGenre,
       deleteGenre,
     }),
-    [loadGenres, saveGenre, deleteGenre]
+    [genres, loadGenres, saveGenre, deleteGenre]
   );
 }

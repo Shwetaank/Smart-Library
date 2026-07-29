@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 type EmptyStateProps = Readonly<{
     icon: LucideIcon;
@@ -12,13 +13,15 @@ export function EmptyState({
     text,
 }: EmptyStateProps) {
     return (
-        // Empty state message
-        <article className="empty-state">
-            <Icon size={22} />
-
-            {/* Empty state content */}
-            <strong>{title}</strong>
-            <span>{text}</span>
-        </article>
+        <Card className="col-span-full">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="mb-4 rounded-full bg-muted p-3">
+                    <Icon size={24} className="text-primary" />
+                </div>
+                <h3 className="mb-1 text-base font-semibold text-foreground">{title}</h3>
+                <p className="max-w-xs text-sm text-muted-foreground">{text}</p>
+            </CardContent>
+        </Card>
     );
 }
+

@@ -1,12 +1,8 @@
 import React from "react";
-import {
-    BookOpen,
-    CalendarClock,
-    Hash,
-    Trash2,
-    Upload,
-} from "lucide-react";
+import { BookOpen, CalendarClock, Hash, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import type { Book } from "@/types";
 
 type BookCardProps = {
@@ -28,102 +24,128 @@ const BookCard = ({
     onDelete,
     canManageLibrary,
 }: BookCardProps) => {
+    const availabilityRatio = book.quantity > 0
+        ? Math.round((book.availableCopies / book.quantity) * 100)
+        : 0;
+
     return (
-        <article className="book-card">
-            {/* Book cover */}
-            <div className="book-cover">
-                {book.coverUrl ? (
-                    <img
-                        src={book.coverUrl}
-                        alt={`${book.title} cover`}
-                        loading="lazy"
-                        decoding="async"
-                    />
-                ) : (
-                    <span>{book.title.charAt(0).toUpperCase()}</span>
-                )}
-            </div>
+        <Card className="group overflow-hidden transition-all hover:shadow-md hover:-translate-y-0.5">
+            <CardContent className="p-0">
+                <div className="flex gap-3 p-4">
+                    {/* Book cover */}
+                    <div className="flex h-20 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-emerald-500 to-cyan-500 text-lg font-bold text-white shadow-sm">
+                        {book.coverUrl ? (
+                            <img
+                                src={book.coverUrl}
+                                alt={`${book.title} cover`}
+                                className="h-full w-full object-cover"
+                                loading="lazy"
+                            />
+                        ) : (
+                            <span>{book.title.charAt(0).toUpperCase()}</span>
+                        )}
+                    </div>
 
-            {/* Book details */}
-            <div className="book-body">
-                <span>{book.genre?.name ?? "Uncategorized"}</span>
+                    {/* Book info */}
+                    <div className="flex-1 min-w-0 space-y-1">
+                        <Badge variant="secondary" className="px-1.5 py-0 text-[10px] uppercase tracking-wider">
+                            {book.genre?.name ?? "Uncategorized"}
+                        </Badge>
 
-                <h2 className="truncate" title={book.title}>
-                    {book.title}
-                </h2>
-
-                <p className="truncate" title={book.author}>
-                    {book.author}
-                </p>
-
-                <small>
-                    {book.availableCopies}/{book.quantity} available
-                </small>
-            </div>
-
-            {/* Actions */}
-            <div className="row-actions">
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => onOpen(book.id)}
-                    aria-label={`View details of ${book.title}`}
-                >
-                    <Hash size={14} />
-                    <span>Details</span>
-                </Button>
-
-                <Button
-                    type="button"
-                    size="sm"
-                    disabled={book.availableCopies <= 0}
-                    onClick={() => onBorrow(book.id)}
-                    aria-label={`Borrow ${book.title}`}
-                >
-                    <BookOpen size={14} />
-                    <span>Borrow</span>
-                </Button>
-
-                <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onReserve(book.id)}
-                    aria-label={`Reserve ${book.title}`}
-                >
-                    <CalendarClock size={14} />
-                    <span>Hold</span>
-                </Button>
-
-                {canManageLibrary && (
-                    <>
-                        <Button
-                            type="button"
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => onEdit(book)}
-                            title="Edit book"
-                            aria-label={`Edit ${book.title}`}
+                        <h3
+                            className="truncate text-sm font-semibold text-foreground group-hover:text-emerald-500 transition-colors"
+                            title={book.title}
                         >
-                            <Upload size={14} />
-                        </Button>
+                            {book.title}
+                        </h3>
 
-                        <Button
-                            type="button"
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => onDelete(book.id)}
-                            title="Delete book"
-                            aria-label={`Delete ${book.title}`}
-                        >
-                            <Trash2 size={14} />
-                        </Button>
-                    </>
-                )}
-            </div>
-        </article>
+                        <p className="truncate text-xs text-muted-foreground" title={book.author}>
+                            {book.author}
+                        </p>
+
+                        <div className="flex items-center gap-2 pt-1">
+                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full transition-all ${availabilityRatio > 50
+                                            ? "bg-emerald-500"
+                                            : availabilityRatio > 0
+                                                ? "bg-amber-500"
+                                                : "bg-red-500"
+                                        }`}
+                                    style={{ width: `${availabilityRatio}%` }}
+                                />
+                            </div>
+                            <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">
+                                {book.availableCopies}/{book.quantity}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap gap-1.5 border-t border-border bg-muted/30 px-4 py-2.5">
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 text-xs"
+                        onClick={() => onOpen(book.id)}
+                    >
+                        <Hash size={12} />
+                        Details
+                    </Button>
+
+                    <Button
+                        type="button"
+                        size="sm"
+                        className="h-7 text-xs"
+                        disabled={book.availableCopies <= 0}
+                        onClick={() => onBorrow(book.id)}
+                    >
+                        <BookOpen size={12} />
+                        Borrow
+                    </Button>
+
+                    <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs"
+                        onClick={() => onReserve(book.id)}
+                    >
+                        <CalendarClock size={12} />
+                        Hold
+                    </Button>
+
+                    {canManageLibrary && (
+                        <>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0"
+                                onClick={() => onEdit(book)}
+                                title="Edit book"
+                            >
+                                <Pencil size={12} />
+                            </Button>
+                            <Button
+                                type="button"
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
+                                onClick={() => onDelete(book.id)}
+                                title="Delete book"
+                            >
+                                <Trash2 size={12} />
+                            </Button>
+                        </>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
     );
 };
 
 export default React.memo(BookCard);
+
