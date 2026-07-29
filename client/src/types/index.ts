@@ -103,4 +103,5 @@ export const emptyBookForm: BookForm = {
 
 // API configuration
 export const API_BASE =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000/api/v1";
+  import.meta.env.VITE_API_BASE_URL ??
+  "https://smart-library-lpbd.onrender.com/api/v1";
