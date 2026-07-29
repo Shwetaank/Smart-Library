@@ -19,7 +19,23 @@ export function createApp(appContainer = container) {
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
   app.use(helmet());
-  app.use(cors({ origin: env.corsOrigin, credentials: true }));
+    const allowedOrigins = [
+    'http://localhost:5173',
+    'https://yellow-ground-0ffdf2a00.7.azurestaticapps.net',
+  ];
+
+  const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  };
+
+  app.use(cors(corsOptions));
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
   app.use(requestLogger);
