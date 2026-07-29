@@ -1,6 +1,7 @@
+import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, CalendarClock } from "lucide-react";
 
-import type { Book, Loan, Reservation, Tab } from "@/types";
+import type { Book, BookForm, Tab } from "@/types";
 import { toBookForm } from "@/lib/api";
 import { emptyBookForm } from "@/types";
 import { useAppContext } from "@/contexts/AppContext";
@@ -105,7 +106,7 @@ export function AuthenticatedApp() {
             onReserve={handleReserve}
             onEdit={(book: Book) => books.setBookForm(toBookForm(book))}
             onDelete={handleDeleteBook}
-            onFormFieldChange={(field) =>
+            onFormFieldChange={(field: Partial<BookForm>) =>
               books.setBookForm((prev) => ({ ...prev, ...field }))
             }
             onUploadCover={handleUploadCover}
@@ -134,7 +135,7 @@ export function AuthenticatedApp() {
             bookForm={books.bookForm}
             genresForForm={genres.genres}
             coverUploading={coverUploading}
-            onBookFormFieldChange={(field) =>
+            onBookFormFieldChange={(field: Partial<BookForm>) =>
               books.setBookForm((prev) => ({ ...prev, ...field }))
             }
             onUploadCover={handleUploadCover}
@@ -213,8 +214,26 @@ export function AuthenticatedApp() {
           onRefresh={loadCore}
         />
         <main className="mx-auto max-w-7xl space-y-6 px-4 py-6 md:px-6 lg:px-8">
-          {!books.selectedBook && <StatsGrid stats={stats} />}
-          {renderTabContent()}
+          {!books.selectedBook && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <StatsGrid stats={stats} />
+            </motion.div>
+          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={tab + (books.selectedBook ? "-detail" : "")}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              {renderTabContent()}
+            </motion.div>
+          </AnimatePresence>
           <ProfilePanel
             name={auth.profileName}
             onNameChange={auth.setProfileName}

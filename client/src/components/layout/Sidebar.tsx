@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  BookMarked,
   BookOpen,
   CalendarClock,
   Library,
@@ -7,16 +8,26 @@ import {
   RefreshCw,
   Users,
   X,
-  BookMarked,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
+import type { Tab, User } from "@/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { useAppContext } from "@/contexts/AppContext";
-import type { Tab } from "@/types";
+
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  profile: User | null;
+  onSignOut: () => void;
+  activeTab: Tab;
+  onTabChange: (newTab: Tab) => void;
+  canManageUsers: boolean;
+  canManageLibrary: boolean;
+}
 
 const navItems = [
   ["catalog", BookOpen, "Catalog"],
@@ -26,28 +37,24 @@ const navItems = [
   ["users", Users, "Users"],
 ] as const;
 
-const Sidebar = () => {
-  const {
-    isMobileMenuOpen,
-    setIsMobileMenuOpen,
-    auth,
-    tab: activeTab,
-    setTab,
-    books,
-  } = useAppContext();
-
-  const { profile, signOut, canManageUsers, canManageLibrary } = auth;
-
+const Sidebar = ({
+  isOpen,
+  onClose,
+  profile,
+  onSignOut,
+  activeTab,
+  onTabChange,
+  canManageUsers,
+  canManageLibrary,
+}: SidebarProps) => {
   const initials = profile?.name
-    ? profile.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    ? profile.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
     : "U";
-
-  const onTabChange = (newTab: Tab) => {
-    setTab(newTab);
-    if (newTab !== "catalog") books.closeBook();
-  };
-
-  const onClose = () => setIsMobileMenuOpen(false);
 
   const sidebarContent = (
     <div className="flex h-full flex-col">
@@ -90,7 +97,7 @@ const Sidebar = () => {
                   "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                   activeTab === key
                     ? "bg-emerald-500/10 text-emerald-300"
-                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200",
                 )}
               >
                 <Icon size={18} className="shrink-0" />
@@ -110,17 +117,20 @@ const Sidebar = () => {
       <div className="p-4">
         <div className="mb-3 flex items-center gap-3 rounded-lg bg-slate-800/50 p-3">
           <Avatar className="h-9 w-9 border border-slate-700">
-            <AvatarFallback className="bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 text-emerald-300 text-xs">
+            <AvatarFallback className="bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 text-xs text-emerald-300">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-white">
               {profile?.name || "Library User"}
             </p>
             <p className="truncate text-xs text-slate-400">{profile?.email}</p>
           </div>
-          <Badge variant="outline" className="border-slate-700 text-[10px] text-slate-400 uppercase">
+          <Badge
+            variant="outline"
+            className="border-slate-700 text-[10px] uppercase text-slate-400"
+          >
             {profile?.role?.slice(0, 4) || "USER"}
           </Badge>
         </div>
@@ -128,7 +138,7 @@ const Sidebar = () => {
         <Button
           type="button"
           variant="ghost"
-          onClick={signOut}
+          onClick={onSignOut}
           className="w-full justify-start gap-3 text-slate-400 hover:bg-slate-800/50 hover:text-white"
         >
           <LogOut size={16} />
@@ -141,21 +151,21 @@ const Sidebar = () => {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:z-30">
-        <div className="flex flex-1 flex-col bg-slate-950 border-r border-slate-800">
+      <aside className="hidden lg:fixed lg:inset-y-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
+        <div className="border-r border-slate-800 bg-slate-950 flex flex-1 flex-col">
           {sidebarContent}
         </div>
       </aside>
 
       {/* Mobile Sheet Overlay */}
-      {isMobileMenuOpen && (
+      {isOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
           <div className="fixed inset-y-0 left-0 z-50 w-72 animate-in slide-in-from-left">
-            <div className="flex h-full flex-col bg-slate-950 shadow-2xl border-r border-slate-800">
+            <div className="border-r border-slate-800 bg-slate-950 shadow-2xl flex h-full flex-col">
               {sidebarContent}
             </div>
           </div>
@@ -166,4 +176,3 @@ const Sidebar = () => {
 };
 
 export default React.memo(Sidebar);
-

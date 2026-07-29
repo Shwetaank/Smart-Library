@@ -1,29 +1,58 @@
-import React from "react";
-import { BookOpen, Menu, RefreshCw } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { BookOpen, Menu, Moon, RefreshCw, Sun } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useAppContext } from "@/contexts/AppContext";
 
-const Header = () => {
-  const {
-    isMobileMenuOpen,
-    setIsMobileMenuOpen,
-    getHeaderTitle,
-    books,
-    genres,
-    loading,
-    loadCore,
-  } = useAppContext();
+interface HeaderProps {
+  onMenuClick: () => void;
+  title: string;
+  subtitle: string;
+  loading: boolean;
+  onRefresh: () => void;
+}
 
-  const onMenuClick = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const title = getHeaderTitle();
-  const subtitle = books.selectedBook
-    ? books.selectedBook.id
-    : `${books.books.total} books indexed across ${genres.genres.length} genres.`;
+const Header = ({
+  onMenuClick,
+  title,
+  subtitle,
+  loading,
+  onRefresh,
+}: HeaderProps) => {
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("theme");
+    const prefersDark =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    const next =
+      stored === "light" || stored === "dark"
+        ? stored
+        : prefersDark
+          ? "dark"
+          : "light";
+
+    setTheme(next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+  }, []);
+
+  const Icon = useMemo(() => {
+    return theme === "dark" ? Sun : Moon;
+  }, [theme]);
+
+  const onToggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b border-border bg-background/80 px-4 py-3 backdrop-blur-xl md:px-6 lg:px-8">
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex min-w-0 items-center gap-3">
         {/* Mobile menu button */}
         {onMenuClick && (
           <Button
@@ -39,7 +68,7 @@ const Header = () => {
         )}
 
         {/* Icon */}
-        <div className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/10 to-cyan-500/10">
+        <div className="from-emerald-500/10 to-cyan-500/10 hidden h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br sm:flex">
           <BookOpen size={18} className="text-emerald-500" />
         </div>
 
@@ -56,28 +85,41 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Refresh button */}
-      {loadCore && (
+      <div className="flex items-center gap-2">
+        {/* Theme toggle */}
         <Button
           type="button"
-          variant="outline"
-          size="sm"
-          onClick={loadCore}
-          disabled={loading}
+          variant="ghost"
+          size="icon"
+          onClick={onToggleTheme}
+          aria-label="Toggle theme"
           className="shrink-0"
         >
-          <RefreshCw
-            size={14}
-            className={cn("transition-transform", loading && "animate-spin")}
-          />
-          <span className="hidden sm:inline">
-            {loading ? "Refreshing..." : "Refresh"}
-          </span>
+          <Icon size={18} className="text-foreground" />
         </Button>
-      )}
+
+        {/* Refresh button */}
+        {onRefresh && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={loading}
+            className="shrink-0"
+          >
+            <RefreshCw
+              size={14}
+              className={cn("transition-transform", loading && "animate-spin")}
+            />
+            <span className="hidden sm:inline">
+              {loading ? "Refreshing..." : "Refresh"}
+            </span>
+          </Button>
+        )}
+      </div>
     </header>
   );
 };
 
 export default React.memo(Header);
-

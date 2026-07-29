@@ -1,4 +1,5 @@
 
+import type { PropsWithChildren } from "react";
 import React, {
   createContext,
   useCallback,
@@ -60,7 +61,7 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC = ({ children }) => {
+export const AppProvider = ({ children }: PropsWithChildren) => {
   const toast = useToast();
   const auth = useAuth();
   const books = useBooks(auth.token);
