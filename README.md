@@ -6,7 +6,7 @@
 
 ### Online Library Management System
 
-**A production-ready, full-stack web application built on the MERN stack and Microsoft Azure.**
+**full-stack web application built on the MERN stack and Microsoft Azure.**
 
 <br/>
 
@@ -21,15 +21,16 @@
 
 <br/>
 
-[🌐 Live Demo](https://your-app.azurestaticapps.net) · [📖 API Docs](#-api-reference) · [🐛 Report Bug](https://github.com/your-username/library-system/issues) · [✨ Request Feature](https://github.com/your-username/library-system/issues)
+[🌐 Live ](https://yellow-ground-0ffdf2a00.7.azurestaticapps.net/) · [🐛 Report Bug](https://github.com/Shwetaank/Smart-Library/issues) · [✨ Request Feature](https://github.com/Shwetaank/Smart-Library/issues)
 
 <br/>
-
-![SmartLibrary Preview](https://raw.githubusercontent.com/your-username/library-system/main/docs/preview.png)
-
 </div>
 
 ---
+
+<img width="1280" height="680" alt="SmartLibrary" src="https://github.com/user-attachments/assets/06269295-3643-4323-b9f7-0df163f9caab" />
+
+
 
 ## 📋 Table of Contents
 
@@ -39,7 +40,6 @@
 - [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
   - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
   - [Environment Variables](#environment-variables)
   - [Database Setup](#database-setup)
   - [Running Locally](#running-locally)
@@ -48,7 +48,6 @@
   - [Azure Setup](#azure-setup)
   - [CI/CD Pipeline](#cicd-pipeline)
 - [Security](#-security)
-- [Cost Estimate](#-cost-estimate)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -57,8 +56,6 @@
 ## 🔍 Overview
 
 SmartLibrary is a full-featured **Online Library Management System** that enables library staff to manage a book catalog and allows members to browse, borrow, return, and reserve books — all through a clean, responsive web interface.
-
-Built as a **portfolio-grade project** demonstrating:
 
 - Full-stack TypeScript development (React 18 + Node.js/Express)
 - Relational database design with Prisma ORM on Azure SQL
@@ -85,7 +82,6 @@ Built as a **portfolio-grade project** demonstrating:
 | 🔎 **Audit Logs** | Every write operation (borrow, return, edit) tracked with user + timestamp |
 | 📱 **Responsive UI** | Tailwind CSS + shadcn/ui — works on mobile, tablet, and desktop |
 | 🚀 **CI/CD Pipeline** | 5-job GitHub Actions pipeline: lint → test → build → staging → production |
-| 📈 **Monitoring** | Azure Application Insights telemetry integrated in production |
 
 ---
 
@@ -130,9 +126,6 @@ Built as a **portfolio-grade project** demonstrating:
 | Azure Static Web Apps | Free | Host the React build (global CDN) |
 | Azure SQL Database | Serverless, General Purpose | Relational data store |
 | Azure Blob Storage | Standard LRS | Book cover images |
-| Azure AD B2C | Free (≤ 50K MAU) | User registration, login, password reset |
-| Azure Key Vault | Standard | Secrets and connection strings |
-| Azure Application Insights | Pay-as-you-go | Logging, traces, performance |
 
 ---
 
@@ -187,21 +180,7 @@ library-system/                      ← Monorepo root
 | Node.js | 20 LTS | [nodejs.org](https://nodejs.org) or `nvm install 20` |
 | npm | 10+ | Bundled with Node.js |
 | Git | 2.x | [git-scm.com](https://git-scm.com) |
-| Azure CLI | 2.57+ | `winget install Microsoft.AzureCLI` |
 
-### Installation
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/your-username/library-system.git
-cd library-system
-
-# 2. Install server dependencies
-cd server && npm install
-
-# 3. Install client dependencies
-cd ../client && npm install
-```
 
 ### Environment Variables
 
@@ -216,13 +195,6 @@ PORT=3001
 # Format: sqlserver://<host>:1433;database=<db>;user=<u>;password=<p>;encrypt=true
 DATABASE_URL="sqlserver://your-server.database.windows.net:1433;database=LibraryDB;user=adminuser;password=YourPassword!;encrypt=true;trustServerCertificate=false"
 
-# ── Azure AD B2C ─────────────────────────────────────────────────────
-AZURE_B2C_TENANT_NAME=yourtenantname
-AZURE_B2C_POLICY=B2C_1_signupsignin
-AZURE_B2C_CLIENT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-AZURE_B2C_ISSUER=https://yourtenantname.b2clogin.com/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/v2.0/
-AZURE_B2C_JWKS_URI=https://yourtenantname.b2clogin.com/yourtenantname.onmicrosoft.com/B2C_1_signupsignin/discovery/v2.0/keys
-
 # ── Azure Blob Storage ───────────────────────────────────────────────
 AZURE_STORAGE_ACCOUNT_NAME=librarycoversstorage
 AZURE_STORAGE_ACCOUNT_KEY=your-storage-account-key==
@@ -230,18 +202,11 @@ AZURE_STORAGE_ACCOUNT_KEY=your-storage-account-key==
 # ── CORS ─────────────────────────────────────────────────────────────
 ALLOWED_ORIGINS=http://localhost:5173,https://your-app.azurestaticapps.net
 
-# ── Azure Application Insights (production only) ─────────────────────
-# APPLICATIONINSIGHTS_CONNECTION_STRING=InstrumentationKey=xxxx;...
-```
 
 Create `client/.env.local` for the frontend:
 
 ```env
 VITE_API_BASE_URL=http://localhost:3001
-VITE_AZURE_CLIENT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-VITE_AZURE_AUTHORITY=https://yourtenantname.b2clogin.com/yourtenantname.onmicrosoft.com/B2C_1_signupsignin
-VITE_AZURE_REDIRECT_URI=http://localhost:5173
-```
 
 ### Database Setup
 
@@ -254,22 +219,8 @@ npx prisma db push
 # Seed with 6 genres and 14 sample books
 npm run db:seed
 
-# (Optional) Browse data visually at http://localhost:5555
 npm run db:studio
 ```
-
-### Running Locally
-
-```bash
-# Terminal 1 — API server on port 3001
-cd server && npm run dev
-
-# Terminal 2 — React dev server on port 5173
-cd client && npm run dev
-```
-
-Open **http://localhost:5173** — the frontend proxies API requests to port 3001 automatically.
-
 > **Quick test:** `curl http://localhost:3001/health` should return `{ "status": "ok" }`
 
 ---
@@ -317,22 +268,6 @@ All routes are prefixed with `/api/v1`. Auth levels: `Public` (no token), `USER+
 | `GET` | `/reservations` | USER+ | List holds |
 | `DELETE` | `/reservations/:id` | USER+ | Cancel hold |
 
-### Error Format
-
-Every error returns a consistent shape:
-
-```json
-// 422 Validation
-{ "error": "Validation failed", "issues": [{ "field": "isbn", "message": "Required" }] }
-
-// 4xx Business rule
-{ "error": "No copies available — consider placing a reservation" }
-
-// 401 / 403
-{ "error": "Token expired" }
-{ "error": "Insufficient permissions" }
-```
-
 ---
 
 ## ☁️ Deployment
@@ -341,54 +276,7 @@ Every error returns a consistent shape:
 
 Run these CLI commands once to provision all required resources:
 
-```bash
-# Login and create resource group
-az login
-az group create --name rg-library-mgmt --location centralindia
 
-# Azure SQL Database
-az sql server create \
-  --resource-group rg-library-mgmt \
-  --name library-sql-server \
-  --location centralindia \
-  --admin-user adminuser \
-  --admin-password 'YourStrongPassword123!'
-
-az sql server firewall-rule create \
-  --resource-group rg-library-mgmt --server library-sql-server \
-  --name AllowAzureServices \
-  --start-ip-address 0.0.0.0 --end-ip-address 0.0.0.0
-
-az sql db create \
-  --resource-group rg-library-mgmt \
-  --server library-sql-server \
-  --name LibraryDB \
-  --edition GeneralPurpose --compute-model Serverless \
-  --family Gen5 --capacity 1 --auto-pause-delay 60
-
-# Azure App Service
-az appservice plan create \
-  --resource-group rg-library-mgmt \
-  --name library-plan --is-linux --sku B1
-
-az webapp create \
-  --resource-group rg-library-mgmt \
-  --plan library-plan --name library-olms-api --runtime 'NODE:20-lts'
-
-az webapp update \
-  --resource-group rg-library-mgmt \
-  --name library-olms-api --https-only true
-
-# Azure Blob Storage
-az storage account create \
-  --resource-group rg-library-mgmt \
-  --name librarycoversstorage \
-  --sku Standard_LRS --kind StorageV2
-
-az storage container create \
-  --account-name librarycoversstorage \
-  --name book-covers --public-access off
-```
 
 ### CI/CD Pipeline
 
@@ -401,23 +289,6 @@ push to develop ──► lint-and-test ──► build-server ──► deploy-
 push to main    ──► lint-and-test ──► build-server ──► deploy-prod (slot swap → auto-rollback)
                                   └──► build-client ──┘
 ```
-
-**Add these 8 secrets** in GitHub → Settings → Secrets → Actions:
-
-| Secret | Where to get it |
-|---|---|
-| `AZURE_CREDENTIALS` | `az ad sp create-for-rbac --name library-github --role contributor --scopes /subscriptions/<ID>/resourceGroups/rg-library-mgmt --sdk-auth` |
-| `PROD_DATABASE_URL` | Azure Portal → SQL Database → Connection strings |
-| `AZURE_B2C_CLIENT_ID` | Azure Portal → App registrations → Application (client) ID |
-| `AZURE_B2C_AUTHORITY` | `https://<tenant>.b2clogin.com/<tenant>.onmicrosoft.com/B2C_1_signupsignin` |
-| `AZURE_REDIRECT_URI` | Your Static Web Apps production URL |
-| `API_BASE_URL` | Your App Service URL |
-| `AZURE_STATIC_APPS_TOKEN` | Azure Portal → Static Web App → Manage deployment token |
-| `AZURE_STATIC_APPS_STAGING_TOKEN` | Same app → staging environment token |
-
-Once secrets are set, push to `develop` to trigger a staging deploy, then push to `main` for production.
-
----
 
 ## 🔒 Security
 
@@ -436,25 +307,6 @@ Once secrets are set, push to `develop` to trigger a staging deploy, then push t
 | CORS whitelist | `ALLOWED_ORIGINS` env var — explicit list, never `*` |
 | Blob access | Container private; images served via time-limited SAS tokens (60 min) |
 | Audit trail | `AuditLog` model records every write: who, what, when, payload snapshot |
-
----
-
-## 💰 Cost Estimate
-
-Monthly estimate for a small-to-medium library deployment on Azure (Central India region):
-
-| Service | Tier | USD / month | INR / month |
-|---|---|---|---|
-| Azure App Service | Basic B1 (Linux) | ~$13 | ~₹1,090 |
-| Azure SQL Database | Serverless GP, 1 vCore, auto-pause | ~$5–15 | ~₹420–1,260 |
-| Azure Blob Storage | Standard LRS, ~10 GB | ~$0.25 | ~₹20 |
-| Azure Static Web Apps | Free tier | $0 | ₹0 |
-| Azure AD B2C | Free (≤ 50K MAU) | $0 | ₹0 |
-| Azure Key Vault | Standard | ~$0.50 | ~₹42 |
-| Azure Application Insights | Pay-as-you-go | ~$0–5 | ~₹0–420 |
-| **Total estimate** | | **~$19–34 / month** | **~₹1,600–2,900 / month** |
-
-> SQL Serverless auto-pauses after 60 minutes idle — costs ₹0 when not in use. This can reduce the SQL cost by up to 70% for low-traffic deployments.
 
 ---
 
@@ -503,6 +355,6 @@ Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for full details
 
 **Built with React 18 · Node.js 20 · Prisma · Azure**
 
-⭐ Star this repo if it helped you · 🐛 [Report a bug](https://github.com/your-username/library-system/issues) · ✨ [Request a feature](https://github.com/your-username/library-system/issues)
+⭐ Star this repo if it helped you · 
 
 </div>
